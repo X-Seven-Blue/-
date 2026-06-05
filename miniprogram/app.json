@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/house/house",
+    "pages/learn/learn",
+    "pages/trade/trade",
+    "pages/cat/cat",
+    "pages/social/social"
+  ],
+  "window": {
+    "navigationStyle": "custom",
+    "backgroundColor": "#fff4df"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

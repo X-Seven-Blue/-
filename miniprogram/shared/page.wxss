@@ -1,0 +1,47 @@
+.page-shell {
+  min-height: 100vh;
+  padding: 32rpx;
+  background: linear-gradient(180deg, #f7dfb4, #fff4df);
+  color: #573c22;
+}
+
+.panel-head,
+.video-card,
+.tree-card,
+.chart-card,
+.activity-card,
+.closet-card,
+.cat-review {
+  margin-bottom: 24rpx;
+  padding: 24rpx;
+  border: 3rpx solid #a97b45;
+  border-radius: 24rpx;
+  background: rgba(255, 244, 214, 0.94);
+}
+
+.panel-head text,
+.title {
+  display: block;
+  margin-bottom: 10rpx;
+  font-weight: 700;
+  font-size: 34rpx;
+}
+
+.video-cover,
+.tree-placeholder,
+.pink-chart {
+  height: 260rpx;
+  margin-bottom: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20rpx;
+  background: #ffe9c4;
+}
+
+.pink-chart {
+  background:
+    linear-gradient(rgba(221, 129, 157, 0.2) 1px, transparent 1px) 0 0 / 100% 54rpx,
+    linear-gradient(90deg, rgba(221, 129, 157, 0.2) 1px, transparent 1px) 0 0 / 54rpx 100%,
+    #fff4f6;
+}

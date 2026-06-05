@@ -1,0 +1,13 @@
+{
+  "description": "种小猫微信小程序",
+  "appid": "touristappid",
+  "projectname": "plant-cat-miniapp",
+  "miniprogramRoot": "./",
+  "compileType": "miniprogram",
+  "setting": {
+    "es6": true,
+    "minified": false,
+    "postcss": true,
+    "urlCheck": false
+  }
+}

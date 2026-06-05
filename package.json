@@ -1,0 +1,11 @@
+{
+  "name": "plant-cat-cocos-2d",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/static-server.mjs",
+    "preview": "node scripts/static-server.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

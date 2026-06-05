@@ -1,0 +1,9 @@
+<view
+  class="cat-agent cat-agent--{{mood}}"
+  style="left: {{x}}%; top: {{y}}%; transition-duration: {{moveMs}}ms; --dir: {{dir}};"
+  bindtap="onTap"
+>
+  <view class="cat-bubble" wx:if="{{bubble}}">{{bubble}}</view>
+  <view class="cat-shadow"></view>
+  <image class="cat-sprite" src="{{currentSprite}}" mode="widthFix" />
+</view>

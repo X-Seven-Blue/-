@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "cat-agent": "/components/cat-agent/cat-agent"
+  }
+}

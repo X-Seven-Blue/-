@@ -1,0 +1,16 @@
+<view class="page-shell">
+  <view class="panel-head">
+    <text>猫咪</text>
+    <view>小橘的自主活动</view>
+  </view>
+  <view class="activity-card">
+    <text class="title">今日自动行为</text>
+    <text>09:20 自己去院子看白菜</text>
+    <text>12:30 午休</text>
+    <text>15:10 写学习便签</text>
+  </view>
+  <view class="closet-card">
+    <text class="title">当前装扮：睡衣</text>
+    <text>首版只开放睡衣，其他衣服后续解锁。</text>
+  </view>
+</view>
