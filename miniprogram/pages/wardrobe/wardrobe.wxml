@@ -1,0 +1,6 @@
+<view class="house-placeholder-page">
+  <view class="house-placeholder-panel">
+    <text class="house-placeholder-title">衣柜</text>
+    <text class="house-placeholder-copy">这里先预留换装功能。</text>
+  </view>
+</view>

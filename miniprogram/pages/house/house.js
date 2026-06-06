@@ -97,7 +97,6 @@ Page({
 
   data: {
     hotspots,
-    debugHotspots: false,
     sceneScrollLeft: 0,
     sceneWidthStyle: "",
     cat: {
@@ -133,12 +132,6 @@ Page({
   },
 
   onHotspotTap(event) {
-    const target = event.currentTarget.dataset.target;
-    if (!target) return;
-    wx.navigateTo({ url: target });
-  },
-
-  onNavTap(event) {
     const target = event.currentTarget.dataset.target;
     if (!target) return;
     wx.navigateTo({ url: target });

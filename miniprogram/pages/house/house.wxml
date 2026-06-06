@@ -9,27 +9,6 @@
   >
     <view class="scene" style="{{sceneWidthStyle}}">
       <image class="scene-bg" src="/assets/room-portrait-v14.png" mode="scaleToFill" />
-      <view class="painted-room">
-        <view class="room-layer wall"></view>
-        <view class="room-layer floor"></view>
-        <view class="room-layer loft"></view>
-        <view class="room-layer side-window left-window"></view>
-        <view class="room-layer side-window right-window"></view>
-        <view class="room-layer window-main"><view></view><view></view><view></view><view></view></view>
-        <view class="room-layer curtain curtain-left"></view>
-        <view class="room-layer curtain curtain-right"></view>
-        <view class="room-layer tv-stand"></view>
-        <view class="room-layer tv-object"><view></view></view>
-        <view class="room-layer plant tv-plant"></view>
-        <view class="room-layer desk-object"><view></view><view></view><view></view></view>
-        <view class="room-layer lamp-object"></view>
-        <view class="room-layer rug-object"></view>
-        <view class="room-layer cat-tree-object"></view>
-        <view class="room-layer stair-object"></view>
-        <view class="room-layer garden-object"><view></view><view></view><view></view></view>
-        <view class="room-layer closet-object"></view>
-        <view class="room-layer plant closet-plant"></view>
-      </view>
       <view class="scene-vignette"></view>
 
       <view class="profile-card">
@@ -42,32 +21,10 @@
       </view>
 
       <view class="top-hud">
-        <view><text class="hud-icon">芽</text><text>1280</text><text class="plus">+</text></view>
+        <view><text class="hud-icon">花</text><text>1280</text><text class="plus">+</text></view>
         <view><text class="hud-icon">草</text><text>36</text><text class="plus">+</text></view>
         <view><text class="hud-icon">罐</text><text>5</text><text class="plus">+</text></view>
       </view>
-
-      <view class="side-tools">
-        <button plain="true"><text>✓</text><text>任务</text></button>
-        <button plain="true"><text>⚙</text><text>设置</text></button>
-      </view>
-
-      <view class="scene-card card-tv" data-target="/pages/trade/trade" bindtap="onHotspotTap">
-        <text>TV</text><view>电视<text>交易</text></view>
-      </view>
-      <view class="scene-card card-desk" data-target="/pages/learn/learn" bindtap="onHotspotTap">
-        <text>BOOK</text><view>书桌<text>学习</text></view>
-      </view>
-      <view class="scene-card card-cat" bindtap="openCat">
-        <text>PAW</text><view>猫咪<text>互动</text></view>
-      </view>
-      <view class="scene-card card-garden" data-target="/pages/learn/learn" bindtap="onHotspotTap">
-        <text>芽</text><view>种菜</view>
-      </view>
-      <view class="scene-card card-closet" data-target="/pages/cat/cat" bindtap="onHotspotTap">
-        <text>门</text><view>衣柜<text>换装</text></view>
-      </view>
-      <view class="downstairs-note">↓ 一楼区域</view>
 
       <cat-agent
         x="{{cat.x}}"
@@ -82,23 +39,13 @@
 
       <block wx:for="{{hotspots}}" wx:key="id">
         <view
-          class="hotspot {{debugHotspots ? 'hotspot--debug' : ''}}"
+          class="house-hotspot"
           style="left: {{item.x}}%; top: {{item.y}}%; width: {{item.w}}%; height: {{item.h}}%;"
           data-target="{{item.target}}"
           data-id="{{item.id}}"
           bindtap="onHotspotTap"
-        >
-          <text wx:if="{{debugHotspots}}">{{item.id}}</text>
-        </view>
+        ></view>
       </block>
     </view>
   </scroll-view>
-
-  <view class="soft-nav">
-    <view class="selected"><text class="nav-icon">⌂</text><text>猫舍</text></view>
-    <view data-target="/pages/learn/learn" bindtap="onNavTap"><text class="nav-icon">芽</text><text>学习</text></view>
-    <view data-target="/pages/trade/trade" bindtap="onNavTap"><text class="nav-icon">包</text><text>交易</text></view>
-    <view data-target="/pages/social/social" bindtap="onNavTap"><text class="nav-icon">友</text><text>社交</text></view>
-    <view data-target="/pages/cat/cat" bindtap="onNavTap"><text class="nav-icon">我</text><text>我</text></view>
-  </view>
 </view>

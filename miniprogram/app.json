@@ -4,7 +4,9 @@
     "pages/learn/learn",
     "pages/trade/trade",
     "pages/cat/cat",
-    "pages/social/social"
+    "pages/social/social",
+    "pages/farm/farm",
+    "pages/wardrobe/wardrobe"
   ],
   "window": {
     "navigationStyle": "custom",

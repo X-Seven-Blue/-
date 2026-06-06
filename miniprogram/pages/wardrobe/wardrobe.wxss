@@ -1,0 +1,36 @@
+.house-placeholder-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #f5ddb0, #b87338);
+  color: #5b3b1e;
+}
+
+.house-placeholder-panel {
+  width: 100%;
+  max-width: 560rpx;
+  padding: 44rpx 36rpx;
+  border: 4rpx solid rgba(119, 80, 39, 0.65);
+  border-radius: 24rpx;
+  background: rgba(255, 246, 221, 0.9);
+  box-shadow: 0 16rpx 32rpx rgba(81, 53, 25, 0.18);
+}
+
+.house-placeholder-title,
+.house-placeholder-copy {
+  display: block;
+}
+
+.house-placeholder-title {
+  font-size: 42rpx;
+  font-weight: 900;
+}
+
+.house-placeholder-copy {
+  margin-top: 18rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
