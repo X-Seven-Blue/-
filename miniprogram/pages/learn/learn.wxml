@@ -1,10 +1,15 @@
 <view class="learn-page">
   <view class="learn-hero">
-    <view class="learn-topbar">
-      <button class="learn-back" bindtap="goBack" aria-label="返回">‹</button>
-      <view class="learn-title-block">
-        <text class="learn-title">ETF 模拟交易</text>
-        <text class="learn-subtitle">市场有风险，投资需谨慎</text>
+    <image class="learn-room-bg" src="/assets/room-portrait-v15.png" mode="aspectFill" />
+    <view class="learn-hero-mask"></view>
+
+    <view class="learn-nav">
+      <view class="learn-title-row">
+        <button class="learn-back" bindtap="goBack" aria-label="返回">‹</button>
+        <view class="learn-title-copy">
+          <text class="learn-title">ETF 模拟交易</text>
+          <text class="learn-subtitle">市场有风险，投资需谨慎</text>
+        </view>
       </view>
       <view class="learn-resource-list">
         <view class="learn-resource" wx:for="{{resources}}" wx:key="icon">
@@ -15,25 +20,25 @@
       </view>
     </view>
 
-    <view class="learn-research-desk">
+    <view class="learn-study-stage">
       <view class="learn-speech">
-        <text>{{selectedSector.catQuestion}}</text>
+        <text>如果只能研究一个行业，</text>
+        <text>你会把时间花在哪里？</text>
       </view>
-      <view class="learn-cat-card">
-        <image class="learn-cat-image" src="/assets/cat-write.png" mode="aspectFit" />
-        <view class="learn-nameplate">
-          <text class="learn-name">查理·芒格</text>
-          <text class="learn-role">喵学者</text>
-        </view>
+      <image class="learn-cat-image" src="/assets/cat-write.png" mode="aspectFit" />
+      <view class="learn-desk-shadow"></view>
+      <view class="learn-nameplate">
+        <text class="learn-name">查理·芒格</text>
+        <text class="learn-role">喵学者</text>
       </view>
     </view>
   </view>
 
   <view class="learn-panel">
-    <view class="learn-panel-heading">
-      <text class="learn-leaf">⌁</text>
+    <view class="learn-panel-title-row">
+      <text class="learn-deco">⌁</text>
       <text class="learn-panel-title">选择你感兴趣的研究领域</text>
-      <text class="learn-leaf">⌁</text>
+      <text class="learn-deco">⌁</text>
     </view>
     <text class="learn-panel-subtitle">每个行业都有值得长期研究的价值</text>
 
@@ -45,32 +50,35 @@
         data-id="{{item.id}}"
         bindtap="selectSector"
       >
-        <text class="learn-sector-name">{{item.name}}</text>
-        <view class="learn-sector-icon">{{item.icon}}</view>
-        <text class="learn-sector-desc">{{item.desc}}</text>
-        <view class="learn-sector-tags">
-          <text class="learn-sector-tag" wx:for="{{item.keywords}}" wx:for-item="keyword" wx:key="*this">{{keyword}}</text>
+        <view class="learn-sector-illustration">
+          <text class="learn-sector-emoji">{{item.visualIcon}}</text>
         </view>
+        <text class="learn-sector-name">{{item.name}}</text>
+        <text class="learn-sector-desc">{{item.desc}}</text>
       </button>
     </view>
 
     <view class="learn-actions">
       <button class="learn-random-button" bindtap="randomSector">
-        <text class="learn-action-icon">☘️</text>
-        <view class="learn-action-copy">
-          <text class="learn-action-title">换个思路</text>
-          <text class="learn-action-subtitle">随机推荐一个赛道</text>
+        <text class="learn-button-icon">☘️</text>
+        <view class="learn-button-copy">
+          <text class="learn-button-title">换个思路</text>
+          <text class="learn-button-subtitle">再推荐一批赛道</text>
         </view>
       </button>
       <button class="learn-start-button" bindtap="startResearch">
-        <text class="learn-action-icon">🐾</text>
-        <view class="learn-action-copy">
-          <text class="learn-action-title">开始研究</text>
-          <text class="learn-action-subtitle">进入赛道研究中心</text>
+        <text class="learn-button-icon">🐾</text>
+        <view class="learn-button-copy">
+          <text class="learn-button-title">开始研究</text>
+          <text class="learn-button-subtitle">进入赛道研究中心</text>
         </view>
-        <text class="learn-arrow">→</text>
+        <text class="learn-button-arrow">→</text>
       </button>
     </view>
-    <text class="learn-footnote">选择后可随时切换研究领域</text>
+
+    <view class="learn-risk">
+      <text>选赛后可随时切换研究领域</text>
+      <text>本页面为模拟交易与学习演示，不构成投资建议</text>
+    </view>
   </view>
 </view>

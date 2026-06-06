@@ -1,4 +1,4 @@
-const { getSectorById } = require('../../data/sectorData');
+const { sectors, getSectorById } = require('../../data/sectorData');
 const { buildSectorEtfData } = require('../../data/etfMockData');
 
 Page({
@@ -8,11 +8,13 @@ Page({
       { icon: '☘️', value: 36 },
       { icon: '🐟', value: 5 }
     ],
-    tabs: ['ETF基金', '场外基金', '指数'],
-    activeTab: 'ETF基金',
+    sectors,
+    tabs: ['指数', 'ETF基金', '场外基金'],
+    activeTab: '指数',
     sector: null,
     overview: null,
-    funds: []
+    lists: {},
+    displayItems: []
   },
 
   onLoad(options) {
@@ -28,13 +30,15 @@ Page({
   loadSectorData(sectorId) {
     const sector = getSectorById(sectorId);
     const etfData = buildSectorEtfData(sector);
+    const activeTab = '指数';
 
     wx.setStorageSync('selectedSectorId', sector.id);
     this.setData({
       sector,
       overview: etfData.overview,
-      funds: etfData.funds,
-      activeTab: 'ETF基金'
+      lists: etfData.lists,
+      activeTab,
+      displayItems: etfData.lists[activeTab]
     });
   },
 
@@ -55,21 +59,29 @@ Page({
   },
 
   toggleFollow(e) {
-    const fundId = e.currentTarget.dataset.id;
-    const funds = this.data.funds.map((fund) => {
-      if (fund.id !== fundId) {
-        return fund;
-      }
+    const itemId = e.currentTarget.dataset.id;
+    const lists = Object.assign({}, this.data.lists);
 
-      return Object.assign({}, fund, { followed: !fund.followed });
+    Object.keys(lists).forEach((tab) => {
+      lists[tab] = lists[tab].map((item) => {
+        if (item.id !== itemId) {
+          return item;
+        }
+        return Object.assign({}, item, { followed: !item.followed });
+      });
     });
 
-    this.setData({ funds });
+    this.setData({
+      lists,
+      displayItems: lists[this.data.activeTab] || []
+    });
   },
 
   switchTab(e) {
+    const activeTab = e.currentTarget.dataset.tab;
     this.setData({
-      activeTab: e.currentTarget.dataset.tab
+      activeTab,
+      displayItems: this.data.lists[activeTab] || []
     });
   },
 
