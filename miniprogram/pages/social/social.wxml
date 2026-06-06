@@ -1,11 +1,113 @@
-<view class="page-shell">
-  <view class="panel-head">
-    <text>窗户</text>
-    <view>猫猫社区</view>
+<view class="social-page">
+  <view class="social-window">
+    <view class="social-leaves social-leaves-left"></view>
+    <view class="social-leaves social-leaves-right"></view>
+    <view class="social-sky">
+      <view class="social-sun"></view>
+      <view class="social-cloud social-cloud-one"></view>
+      <view class="social-cloud social-cloud-two"></view>
+      <view class="social-cat-back"></view>
+    </view>
+    <view class="social-sill">
+      <view class="social-pot"></view>
+      <view class="social-bench"></view>
+      <view class="social-windbell"></view>
+    </view>
   </view>
-  <view class="activity-card">
-    <text class="title">猫 Agent 对话</text>
-    <text>团团：我今天梦到一棵知识树。</text>
-    <text>小橘：我把它画成明信片，给主人分享。</text>
+
+  <view class="social-content">
+    <view class="social-header">
+      <view>
+        <text class="social-kicker">窗边好友动态</text>
+        <text class="social-title">猫友动态</text>
+      </view>
+      <view class="social-title-badge">喵</view>
+    </view>
+
+    <view class="social-resource-bar">
+      <block wx:for="{{resources}}" wx:key="id">
+        <view class="social-resource">
+          <text class="social-resource-icon">{{item.icon}}</text>
+          <text class="social-resource-value">{{item.value}}</text>
+          <text class="social-resource-plus">+</text>
+        </view>
+      </block>
+    </view>
+
+    <view class="social-section social-friends-panel">
+      <view class="social-section-head">
+        <text class="social-section-icon">爪</text>
+        <text class="social-section-title">猫的好友</text>
+      </view>
+      <view class="social-friend-list">
+        <block wx:for="{{friends}}" wx:key="id">
+          <view
+            class="social-friend {{selectedFriendId === item.id ? 'social-friend-selected' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="onFriendTap"
+          >
+            <view class="social-avatar social-avatar-{{item.tone}}">
+              <text>{{item.avatar}}</text>
+            </view>
+            <text class="social-friend-name">{{item.name}}</text>
+            <text class="social-friend-status">{{item.status}}</text>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <view class="social-section social-feed-panel">
+      <view class="social-section-head">
+        <text class="social-section-icon">叶</text>
+        <text class="social-section-title">猫友圈动态</text>
+      </view>
+      <block wx:for="{{posts}}" wx:key="id">
+        <view class="social-card">
+          <view class="social-card-main">
+            <view class="social-avatar social-avatar-{{item.tone}}">
+              <text>{{item.avatar}}</text>
+            </view>
+            <view class="social-post-body">
+              <view class="social-post-meta">
+                <text class="social-post-name">{{item.name}}</text>
+                <text class="social-post-time">{{item.time}}</text>
+              </view>
+              <text class="social-post-text">{{item.content}}</text>
+              <view class="social-post-picture social-picture-{{item.picture}}">
+                <view class="social-picture-sky"></view>
+                <view class="social-picture-hill"></view>
+                <view class="social-picture-path"></view>
+                <view class="social-picture-dot social-picture-dot-one"></view>
+                <view class="social-picture-dot social-picture-dot-two"></view>
+              </view>
+              <view class="social-card-actions">
+                <button
+                  class="social-like-btn"
+                  plain="true"
+                  data-id="{{item.id}}"
+                  bindtap="onLikeTap"
+                >
+                  <text class="social-like-icon">心</text>
+                  <text>{{item.likeCount}}</text>
+                </button>
+                <button
+                  class="social-comment-btn"
+                  plain="true"
+                  data-id="{{item.id}}"
+                  bindtap="onCommentTap"
+                >
+                  <text>评论</text>
+                </button>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <view class="social-greeting">
+      <view class="social-greeting-icon">小</view>
+      <text>{{greeting}}</text>
+    </view>
   </view>
 </view>
