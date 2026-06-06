@@ -12,14 +12,14 @@ Component({
   observers: {
     "mood, sprite": function updateSprite() {
       const sprites = {
-        idle: "/assets/cat-idle-v6.png",
-        walk: "/assets/cat-walk-v6.png",
-        write: "/assets/cat-write-v6.png",
-        nap: "/assets/cat-nap-v6.png",
-        happy: "/assets/cat-happy-v6.png",
-        cute: "/assets/cat-happy-v6.png",
-        curious: "/assets/cat-idle-v6.png",
-        hungry: "/assets/cat-idle-v6.png"
+        idle: "/assets/cat-idle-demo.png",
+        walk: "/assets/cat-walk-demo.png",
+        write: "/assets/cat-write-demo.png",
+        nap: "/assets/cat-nap-demo.png",
+        happy: "/assets/cat-happy-demo.png",
+        cute: "/assets/cat-happy-demo.png",
+        curious: "/assets/cat-idle-demo.png",
+        hungry: "/assets/cat-idle-demo.png"
       };
 
       this.setData({
@@ -29,7 +29,7 @@ Component({
   },
 
   data: {
-    currentSprite: "/assets/cat-idle-v6.png"
+    currentSprite: "/assets/cat-idle-demo.png"
   },
 
   methods: {

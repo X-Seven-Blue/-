@@ -1,83 +1,273 @@
-<view class="learn-page">
-  <view class="learn-hero">
-    <image class="learn-room-bg" src="/assets/learn/sector-hero-study.png" mode="aspectFill" />
-    <view class="learn-hero-mask"></view>
+<view class="learn-page" bindtouchstart="handleLearnTouchStart" bindtouchend="handleLearnTouchEnd">
+  <block wx:if="{{learnView === 'select'}}">
+    <view class="learn-hero">
+      <image class="learn-room-bg" src="/assets/learn/sector-hero-study-demo.jpg" mode="aspectFill" />
+      <view class="learn-hero-mask"></view>
 
-    <view class="learn-nav">
-      <view class="learn-title-row">
-        <button class="learn-back" bindtap="goBack" aria-label="返回">‹</button>
-        <view class="learn-title-copy">
-          <text class="learn-title">ETF 模拟交易</text>
-          <text class="learn-subtitle">市场有风险，投资需谨慎</text>
+      <view class="learn-nav">
+        <view class="learn-title-row">
+          <button class="learn-back" bindtap="goBack" aria-label="返回">‹</button>
+          <view class="learn-title-copy">
+            <text class="learn-title">ETF 模拟交易</text>
+            <text class="learn-subtitle">市场有风险，投资需谨慎</text>
+          </view>
+        </view>
+        <view class="learn-resource-list">
+          <view class="learn-resource" wx:for="{{resources}}" wx:key="icon">
+            <text class="learn-resource-icon">{{item.icon}}</text>
+            <text class="learn-resource-value">{{item.value}}</text>
+            <text class="learn-resource-plus">+</text>
+          </view>
         </view>
       </view>
-      <view class="learn-resource-list">
-        <view class="learn-resource" wx:for="{{resources}}" wx:key="icon">
-          <text class="learn-resource-icon">{{item.icon}}</text>
-          <text class="learn-resource-value">{{item.value}}</text>
-          <text class="learn-resource-plus">+</text>
+
+      <view class="learn-study-stage">
+        <view class="learn-speech">
+          <text>如果只能研究一个行业，</text>
+          <text>你会把时间花在哪里？</text>
+        </view>
+        <view class="learn-desk-shadow"></view>
+        <view class="learn-nameplate">
+          <text class="learn-name">查理·芒格</text>
+          <text class="learn-role">喵学者</text>
         </view>
       </view>
     </view>
 
-    <view class="learn-study-stage">
-      <view class="learn-speech">
-        <text>如果只能研究一个行业，</text>
-        <text>你会把时间花在哪里？</text>
+    <view class="learn-panel">
+      <view class="learn-panel-title-row">
+        <text class="learn-deco">⌁</text>
+        <text class="learn-panel-title">选择你感兴趣的研究领域</text>
+        <text class="learn-deco">⌁</text>
       </view>
-      <view class="learn-desk-shadow"></view>
-      <view class="learn-nameplate">
-        <text class="learn-name">查理·芒格</text>
-        <text class="learn-role">喵学者</text>
+      <text class="learn-panel-subtitle">每个行业都有值得长期研究的价值</text>
+
+      <view class="learn-market-map" wx:if="{{selectedSector}}">
+        <view>
+          <text class="learn-market-label">你选择的通俗入口</text>
+          <text class="learn-market-value">{{selectedSector.name}}</text>
+        </view>
+        <text class="learn-market-arrow">→</text>
+        <view>
+          <text class="learn-market-label">进入真实市场赛道</text>
+          <text class="learn-market-value">{{selectedSector.marketName}}</text>
+        </view>
       </view>
+
+      <view class="learn-sector-grid">
+        <view class="learn-sector-row" wx:for="{{sectorRows}}" wx:for-item="row" wx:key="*this">
+          <button
+            class="learn-sector-card {{selectedSectorId === item.id ? 'learn-sector-card-active' : ''}}"
+            wx:for="{{row}}"
+            wx:key="id"
+            data-id="{{item.id}}"
+            bindtap="selectSector"
+          >
+            <image class="learn-sector-image" src="{{item.art}}" mode="aspectFill" lazy-load="false" />
+            <text class="learn-sector-name">{{item.name}}</text>
+            <text class="learn-sector-desc">{{item.desc}}</text>
+          </button>
+        </view>
+      </view>
+
+      <view class="learn-actions">
+        <button class="learn-random-button" bindtap="randomSector">
+          <text class="learn-button-icon">☘️</text>
+          <view class="learn-button-copy">
+            <text class="learn-button-title">换个思路</text>
+            <text class="learn-button-subtitle">再推荐一批赛道</text>
+          </view>
+        </button>
+        <button class="learn-start-button" bindtap="startResearch">
+          <text class="learn-button-icon">🐾</text>
+          <view class="learn-button-copy">
+            <text class="learn-button-title">开始研究</text>
+            <text class="learn-button-subtitle">进入赛道研究中心</text>
+          </view>
+          <text class="learn-button-arrow">→</text>
+        </button>
+      </view>
+
+      <view class="learn-risk">
+        <text>选赛后可随时切换研究领域</text>
+        <text>本页面为模拟交易与学习演示，不构成投资建议</text>
+      </view>
+    </view>
+  </block>
+
+  <view class="learn-video-page" wx:if="{{learnView === 'video'}}">
+    <image class="learn-video-bg" src="/assets/learn/study-video-room.jpg" mode="aspectFill" />
+    <view class="learn-video-shade"></view>
+    <view class="learn-video-top">
+      <button class="learn-video-pill" bindtap="goBack">
+        <text class="learn-video-arrow">‹</text>
+        <view>
+          <text>课程</text>
+          <text>返回</text>
+        </view>
+      </button>
+      <view class="learn-video-progress">
+        <text>学习中 {{lessonStep}}/{{lessonTotal}}</text>
+        <view class="learn-video-track"><view style="width: {{lessonProgress}}%;"></view></view>
+      </view>
+      <button class="learn-video-pill learn-video-next" bindtap="openIsland">
+        <view>
+          <text>知识岛</text>
+          <text>地图</text>
+        </view>
+        <text class="learn-club">♣</text>
+      </button>
+    </view>
+
+    <view class="learn-video-copy">
+      <text class="learn-video-tag">🌸 女性消费 · 美妆赛道</text>
+      <text class="learn-video-title">为什么说中国美妆市场未来仍有较大增长空间？</text>
+    </view>
+
+    <view class="learn-video-social">
+      <image src="/assets/cat-avatar-v6-demo.jpg" mode="aspectFit" />
+      <button>+ 关注</button>
+      <text>♡</text>
+      <text>1.2万</text>
+      <text>★</text>
+      <text>收藏</text>
+      <text>↗</text>
+      <text>分享</text>
+    </view>
+
+    <view class="learn-video-logic">
+      <text>核心逻辑在于：</text>
+      <text>人均消费提升 + 渗透率提升 + 品牌升级</text>
+    </view>
+
+    <view class="learn-video-control">
+      <text class="learn-play">Ⅱ</text>
+      <view class="learn-play-track"><view></view></view>
+      <text>00:12 / 01:02</text>
+    </view>
+
+    <view class="learn-video-teacher">
+      <image src="/assets/cat-avatar-v6-demo.jpg" mode="aspectFit" />
+      <view>
+        <text class="learn-teacher-name">查理芒格喵 <text>知识导师</text></text>
+        <text class="learn-teacher-copy">这个视频帮你理解美妆子类的增长逻辑，适合研究女性消费类 ETF 前的底层认知。</text>
+        <text class="learn-teacher-tags">#美妆赛道　#消费升级　#行业研究</text>
+      </view>
+    </view>
+
+    <view class="learn-video-bottom">
+      <text>行业研究框架</text>
+      <text>增长逻辑</text>
+      <text>品牌升级</text>
+      <text>ETF 映射</text>
     </view>
   </view>
 
-  <view class="learn-panel">
-    <view class="learn-panel-title-row">
-      <text class="learn-deco">⌁</text>
-      <text class="learn-panel-title">选择你感兴趣的研究领域</text>
-      <text class="learn-deco">⌁</text>
+  <view class="learn-island-page" wx:if="{{learnView === 'island'}}">
+    <view class="learn-map-nav">
+      <button bindtap="backInLearn">‹</button>
+      <text>知识岛屿</text>
+      <button>?</button>
     </view>
-    <text class="learn-panel-subtitle">每个行业都有值得长期研究的价值</text>
 
-    <view class="learn-sector-grid">
-      <view class="learn-sector-row" wx:for="{{sectorRows}}" wx:for-item="row" wx:key="*this">
+    <scroll-view class="learn-map-scroll" scroll-x scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="learn-map-canvas">
+        <image class="learn-map-bg" src="/assets/learn/knowledge-island.jpg" mode="aspectFill" />
+        <view class="learn-map-shade"></view>
+        <view class="learn-island-title">
+          <text>芒芒学海中</text>
+          <text>你的知识岛屿</text>
+          <text>持续学习，让每一棵知识树茁壮成长</text>
+        </view>
+
         <button
-          class="learn-sector-card {{selectedSectorId === item.id ? 'learn-sector-card-active' : ''}}"
-          wx:for="{{row}}"
+          wx:for="{{islandSubjects}}"
           wx:key="id"
+          class="learn-subject-badge learn-subject-{{item.color}}"
+          style="left: {{item.left}}rpx; top: {{item.top}}rpx;"
           data-id="{{item.id}}"
-          bindtap="selectSector"
+          bindtap="openTree"
         >
-          <image class="learn-sector-image" src="{{item.art}}" mode="aspectFill" lazy-load="false" />
-          <text class="learn-sector-name">{{item.name}}</text>
-          <text class="learn-sector-desc">{{item.desc}}</text>
+          <text>{{item.name}}</text>
+        </button>
+
+        <view class="learn-island-card">
+          <view class="learn-island-card-head">
+            <text>我的学习进度</text>
+            <text>知识点掌握率　{{islandProgress.percent}}%</text>
+          </view>
+          <view class="learn-island-progress"><view style="width: {{islandProgress.percent}}%;"></view></view>
+          <view class="learn-island-stats">
+            <view><text>学习天数</text><text>{{islandProgress.days}} 天</text></view>
+            <view><text>学习视频</text><text>{{islandProgress.videos}} 个</text></view>
+            <view><text>掌握知识点</text><text>{{islandProgress.points}} 个</text></view>
+            <view><text>成就徽章</text><text>{{islandProgress.badges}} 个</text></view>
+          </view>
+        </view>
+
+        <view class="learn-map-hints">
+          <text>金融 · 消费 · 科技 · 医疗 · 制造</text>
+          <text>横向或纵向滑动探索完整知识岛</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="learn-tree-page {{treeTitle === '美妆行业' ? 'learn-beauty-tree-page' : ''}}" wx:if="{{learnView === 'tree'}}">
+    <view class="learn-tree-nav">
+      <button bindtap="backInLearn">‹</button>
+      <view>
+        <text>{{treeTitle}}</text>
+        <text>{{treeSubtitle}}</text>
+      </view>
+      <button>↗</button>
+    </view>
+
+    <scroll-view class="learn-tree-scroll" scroll-x scroll-y enhanced show-scrollbar="{{false}}" scroll-left="{{treeScrollLeft}}" scroll-top="{{treeScrollTop}}">
+      <view class="learn-tree-canvas {{treeZooming ? 'learn-tree-canvas-zooming' : ''}}">
+        <image class="learn-tree-bg" src="{{treeBg}}" mode="aspectFill" />
+        <view class="learn-tree-shade"></view>
+        <view class="learn-mastered" wx:if="{{treeMastered}}">{{treeMastered}}</view>
+
+        <view class="learn-tree-legend" wx:if="{{treeTitle === '美妆行业'}}">
+          <text><text class="learn-dot learned"></text>已掌握</text>
+          <text><text class="learn-dot learning"></text>学习中</text>
+          <text><text class="learn-dot waiting"></text>待学习</text>
+          <text><text class="learn-dot locked"></text>未解锁</text>
+        </view>
+
+        <button
+          wx:for="{{treeNodes}}"
+          wx:key="id"
+          class="learn-tree-node learn-node-{{item.status}} {{selectedNodeId === item.id ? 'learn-tree-node-active' : ''}}"
+          style="left: {{item.left}}rpx; top: {{item.top}}rpx;"
+          data-id="{{item.id}}"
+          bindtap="selectTreeNode"
+        >
+          <text>{{item.status === 'locked' ? '🔒' : '✓'}}</text>
+          <view>
+            <text>{{item.name}}</text>
+            <text wx:if="{{item.percent}}">掌握率 {{item.percent}}%</text>
+            <text wx:else>未解锁</text>
+          </view>
         </button>
       </view>
-    </view>
+    </scroll-view>
 
-    <view class="learn-actions">
-      <button class="learn-random-button" bindtap="randomSector">
-        <text class="learn-button-icon">☘️</text>
-        <view class="learn-button-copy">
-          <text class="learn-button-title">换个思路</text>
-          <text class="learn-button-subtitle">再推荐一批赛道</text>
-        </view>
-      </button>
-      <button class="learn-start-button" bindtap="startResearch">
-        <text class="learn-button-icon">🐾</text>
-        <view class="learn-button-copy">
-          <text class="learn-button-title">开始研究</text>
-          <text class="learn-button-subtitle">进入赛道研究中心</text>
-        </view>
-        <text class="learn-button-arrow">→</text>
-      </button>
-    </view>
-
-    <view class="learn-risk">
-      <text>选赛后可随时切换研究领域</text>
-      <text>本页面为模拟交易与学习演示，不构成投资建议</text>
+    <view class="learn-node-card">
+      <image wx:if="{{selectedNode.icon}}" src="{{selectedNode.icon}}" mode="aspectFit" />
+      <view class="learn-node-card-copy">
+        <text>{{selectedNode.title}}</text>
+        <text>{{selectedNode.desc}}</text>
+      </view>
+      <view class="learn-node-progress">
+        <text wx:if="{{selectedNode.action}}">{{selectedNode.action}}</text>
+        <text wx:else>掌握率</text>
+        <text>{{selectedNode.progress}}%</text>
+        <view><view style="width: {{selectedNode.progress}}%;"></view></view>
+      </view>
+      <button wx:if="{{selectedNode.action}}" bindtap="handleTreeAction">{{selectedNode.action}}</button>
+      <button wx:else bindtap="handleTreeAction">深入这棵树</button>
     </view>
   </view>
 </view>

@@ -1,6 +1,6 @@
 <view class="trade-page" wx:if="{{sector}}">
   <view class="trade-hero" wx:if="{{tradeView === 'research'}}">
-    <image class="trade-room-bg" src="/assets/trade/sector-research-hero.png" mode="aspectFill" />
+    <image class="trade-room-bg" src="/assets/trade/sector-research-hero-demo.jpg" mode="aspectFill" />
     <view class="trade-hero-mask"></view>
 
     <view class="trade-nav">
@@ -29,7 +29,8 @@
 
     <view class="trade-study-stage">
       <view class="trade-speech">
-        <text>你已选择 {{sector.name}} 子类</text>
+        <text wx:if="{{sector.isSubSector}}">你已选择 {{sector.name}} 子类</text>
+        <text wx:else>你已选择 {{sector.name}} 赛道</text>
         <text>{{sector.tradeFocus}}</text>
         <text>{{sector.tradeOpportunity}}</text>
       </view>
@@ -50,13 +51,30 @@
         bindtap="handleIndustryTabTap"
       >
         <text class="trade-industry-icon">{{item.icon}}</text>
-        <text>{{item.marketName || item.name}}行业</text>
+        <text>{{item.marketName}}行业</text>
       </view>
     </view>
 
     <view class="trade-section-title">
-      <text class="trade-section-icon">🌡</text>
+      <text class="trade-section-icon">✦</text>
       <text>赛道概览</text>
+    </view>
+
+    <view class="trade-market-map">
+      <view class="trade-market-node trade-market-node-entry">
+        <text>用户入口</text>
+        <text>{{sector.name}}</text>
+      </view>
+      <text class="trade-market-arrow">›</text>
+      <view class="trade-market-node trade-market-node-market">
+        <text>真实市场分类</text>
+        <text>{{sector.marketName}}</text>
+      </view>
+      <text class="trade-market-arrow">›</text>
+      <view class="trade-market-node">
+        <text>可研究标的</text>
+        <text>指数 / ETF / 基金</text>
+      </view>
     </view>
 
     <view class="trade-overview-grid">
@@ -142,26 +160,20 @@
             <text class="trade-change">{{item.changePercent}}</text>
           </view>
           <view class="trade-trend">
-            <view
-              class="trade-trend-dot"
-              wx:for="{{item.trend}}"
-              wx:for-item="point"
-              wx:key="*this"
-              style="margin-bottom: {{point}}rpx;"
-            ></view>
+            <image class="trade-trend-image" src="{{item.trendAsset}}" mode="aspectFit" />
           </view>
           <button class="trade-row-action" data-id="{{item.id}}" catchtap="handleRowAction">
-            <text class="trade-row-action-icon" wx:if="{{activeTab !== '指数'}}">🧺</text>
+            <text class="trade-row-action-icon" wx:if="{{activeTab !== '指数'}}">+</text>
             <text>{{item.displayActionText}}</text>
           </button>
         </view>
       </view>
 
-      <button class="trade-more-button">查看更多{{activeTab}} ›</button>
+      <button class="trade-more-button" bindtap="handleMoreTap">{{listMoreText}} ›</button>
     </view>
 
     <view class="trade-basket-card" wx:if="{{cartCount > 0}}">
-      <image class="trade-basket-cat" src="/assets/cat-happy-v4.png" mode="aspectFit" />
+      <image class="trade-basket-cat" src="/assets/cat-happy-small-demo.png" mode="aspectFit" />
       <view class="trade-basket-copy">
         <text class="trade-basket-title">已选 {{cartCount}} 个标的</text>
         <text class="trade-basket-subtitle">去种草篮确认模拟买入组合</text>
@@ -176,124 +188,306 @@
 
     <view class="trade-actions">
       <button class="trade-switch-button" bindtap="handleSwitchSector">
-        <text class="trade-action-icon">☘️</text>
+        <text class="trade-action-icon">+</text>
         <view class="trade-action-copy">
           <text class="trade-action-title">换个赛道</text>
           <text class="trade-action-subtitle">重新选择研究领域</text>
         </view>
       </button>
       <button class="trade-continue-button" bindtap="continueResearch">
-        <text class="trade-action-icon">🐾</text>
+        <text class="trade-action-icon">+</text>
         <view class="trade-action-copy">
           <text class="trade-action-title">继续研究</text>
-          <text class="trade-action-subtitle">查看ETF和场外基金</text>
+          <text class="trade-action-subtitle">查看全部标的</text>
         </view>
         <text class="trade-action-arrow">›</text>
       </button>
     </view>
   </view>
 
-  <view class="trade-flow" wx:if="{{tradeView === 'detail'}}">
-    <view class="trade-flow-nav">
+  <view class="trade-fund-page" wx:if="{{tradeView === 'fundList'}}">
+    <view class="trade-fund-nav">
       <button class="trade-flow-back" bindtap="closeFlowView">‹</button>
-      <text class="trade-flow-title">ETF详情</text>
+      <view class="trade-fund-title-wrap">
+        <text class="trade-fund-title">{{sector.marketName}}</text>
+        <text class="trade-fund-caret">⌄</text>
+      </view>
+      <button class="trade-basket-mini trade-fund-basket-mini" bindtap="openCheckout">
+        <text>种草篮</text>
+        <text class="trade-basket-mini-count" wx:if="{{cartCount > 0}}">{{cartCount}}</text>
+      </button>
+    </view>
+
+    <view class="trade-fund-hero">
+      <image class="trade-fund-hero-bg" src="/assets/trade/fund-list-hero-demo.jpg" mode="aspectFill" />
+      <view class="trade-fund-hero-bubble">
+        <text>赛道概览</text>
+        <text>{{sector.tradeFocus}}{{sector.tradeOpportunity}}</text>
+        <text>查看详情 ›</text>
+      </view>
+    </view>
+
+    <view class="trade-fund-category-row">
+      <view
+        class="trade-fund-category {{activeCategoryIndex === index ? 'trade-fund-category-active' : ''}}"
+        wx:for="{{categoryChips}}"
+        wx:key="name"
+        data-index="{{index}}"
+        bindtap="switchCategory"
+      >
+        <text class="trade-fund-category-icon">{{item.icon}}</text>
+        <text>{{item.name}}</text>
+      </view>
+    </view>
+
+    <view class="trade-list-card trade-list-card-fund trade-fund-list-card">
+      <view class="trade-tabs trade-fund-tabs">
+        <button
+          class="trade-tab {{activeTab === item ? 'trade-tab-active' : ''}}"
+          wx:for="{{tabs}}"
+          wx:key="*this"
+          data-tab="{{item}}"
+          bindtap="switchTab"
+        >{{item}}</button>
+      </view>
+
+      <view class="trade-list-head">
+        <text>{{listNameTitle}}</text>
+        <text>{{listValueTitle}}</text>
+        <text>近1年走势</text>
+        <view class="trade-list-action-head">
+          <text>{{listActionTitle}}</text>
+          <button class="trade-filter-button" wx:if="{{activeTab !== '指数'}}" bindtap="openFilterSheet">≡</button>
+        </view>
+      </view>
+      <view class="trade-filter-pill" wx:if="{{activeTab !== '指数'}}">
+        <text>{{categoryChips[activeCategoryIndex].name}}</text>
+        <text>{{selectedFilterText}}</text>
+      </view>
+
+      <view class="trade-list">
+        <view class="trade-list-row" wx:for="{{displayItems}}" wx:key="id" data-id="{{item.id}}" bindtap="previewItem">
+          <view class="trade-item-main">
+            <text class="trade-item-name">{{item.name}}</text>
+            <text class="trade-item-code">{{item.code}}</text>
+          </view>
+          <view class="trade-price-box">
+            <text class="trade-price">{{item.latest}}</text>
+            <text class="trade-change">{{item.changePercent}}</text>
+          </view>
+          <view class="trade-trend">
+            <image class="trade-trend-image" src="{{item.trendAsset}}" mode="aspectFit" />
+          </view>
+          <button class="trade-row-action" data-id="{{item.id}}" catchtap="handleRowAction">
+            <text class="trade-row-action-icon" wx:if="{{activeTab !== '指数'}}">+</text>
+            <text>{{item.displayActionText}}</text>
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <view class="trade-basket-card trade-fund-basket-card" wx:if="{{cartCount > 0}}">
+      <image class="trade-basket-cat" src="/assets/cat-happy-small-demo.png" mode="aspectFit" />
+      <view class="trade-basket-copy">
+        <text class="trade-basket-title">已选 {{cartCount}} 个标的</text>
+        <text class="trade-basket-subtitle">去种草篮看看吧</text>
+      </view>
+      <button class="trade-checkout-button" bindtap="openCheckout">去结算</button>
+    </view>
+  </view>
+
+  <view class="trade-flow trade-detail-flow" wx:if="{{tradeView === 'detail'}}">
+    <view class="trade-flow-nav trade-detail-nav">
+      <button class="trade-flow-back" bindtap="closeFlowView">‹</button>
+      <view class="trade-flow-title">{{selectedFund.name}}</view>
       <view class="trade-detail-tools">
-        <button class="trade-detail-tool">☆</button>
+        <button class="trade-detail-tool">♡</button>
         <button class="trade-detail-tool">↗</button>
       </view>
     </view>
 
-    <view class="trade-detail-hero">
-      <view class="trade-detail-copy">
-        <text class="trade-detail-kicker">{{sector.marketName}}赛道核心标的</text>
-        <text class="trade-detail-name">{{selectedFund.name}}</text>
-        <view class="trade-detail-tags">
-          <text>{{selectedFund.code}}</text>
-          <text>ETF</text>
-          <text>中高风险</text>
+    <view class="trade-detail-scene">
+      <view class="trade-detail-summary">
+        <view class="trade-detail-head">
+          <text class="trade-detail-name">{{selectedFund.name}}</text>
+          <view class="trade-detail-tags">
+            <text>{{selectedFund.code}}</text>
+            <text>ETF</text>
+            <text>中高风险</text>
+            <text>{{sector.childName}}</text>
+          </view>
+          <text class="trade-detail-price">{{selectedFund.latest}}</text>
+          <text class="trade-detail-delta">+0.012　{{selectedFund.changePercent}}</text>
+          <view class="trade-detail-metas">
+            <view><text>净值</text><text>05-16</text></view>
+            <view><text>成交额</text><text>1.23亿</text></view>
+          </view>
+        </view>
+        <image class="trade-detail-cat" src="/assets/cat-happy-small-demo.png" mode="aspectFit" />
+        <view class="trade-detail-speech">
+          <text>短期有波动很正常，长期公司价值在慢慢变好喵。</text>
+          <text>一起看更重要的趋势吧！</text>
+        </view>
+        <view class="trade-detail-legend">
+          <view><text class="trade-line-sample trade-line-market"></text><text>市场价格线</text></view>
+          <text>受市场情绪影响，短期波动较大</text>
+          <view><text class="trade-line-sample trade-line-company"></text><text>公司价值线</text></view>
+          <text>基于盈利与估值，反映长期价值</text>
         </view>
       </view>
-      <image class="trade-detail-cat" src="/assets/trade/cat-etf-detail.png" mode="aspectFit" />
-    </view>
 
-    <view class="trade-price-panel">
-      <view>
-        <text class="trade-detail-label">最新净值</text>
-        <text class="trade-detail-price">{{selectedFund.latest}}</text>
-        <text class="trade-detail-delta">+0.012  {{selectedFund.changePercent}}</text>
+      <view class="trade-growth-tabs">
+        <view><text>🌱</text><text>播种</text><text>今天</text></view>
+        <view><text>☘</text><text>发芽</text><text>最近</text></view>
+        <view class="trade-growth-active"><text>🌸</text><text>成长</text><text>半年</text></view>
+        <view><text>🌼</text><text>盛开</text><text>一年</text></view>
       </view>
-      <view>
-        <text class="trade-detail-label">净值日</text>
-        <text class="trade-detail-meta">05-16</text>
-        <text class="trade-detail-label trade-detail-label-gap">成交额</text>
-        <text class="trade-detail-meta">1.23亿</text>
+
+      <view class="trade-valuation-board">
+        <view class="trade-chart-panel">
+          <view class="trade-chart-y">
+            <text>+30%</text>
+            <text>+15%</text>
+            <text>0%</text>
+            <text>-15%</text>
+            <text>-30%</text>
+          </view>
+          <image class="trade-big-chart-image" src="/assets/trade/sparkline-detail.png" mode="aspectFit" />
+          <view class="trade-chart-note trade-chart-note-low">
+            <text>市场情绪低迷</text>
+            <text>不代表公司更差</text>
+          </view>
+          <view class="trade-chart-note trade-chart-note-mid">
+            <text>价值在积累</text>
+            <text>花开需要时间</text>
+          </view>
+          <view class="trade-chart-note trade-chart-note-high">
+            <text>市场上涨时</text>
+            <text>价格会抢跑</text>
+          </view>
+          <image class="trade-chart-cat trade-chart-cat-one" src="/assets/cat-nap-demo.png" mode="aspectFit" />
+          <image class="trade-chart-cat trade-chart-cat-two" src="/assets/cat-idle-demo.png" mode="aspectFit" />
+          <image class="trade-chart-cat trade-chart-cat-three" src="/assets/cat-happy-small-demo.png" mode="aspectFit" />
+          <view class="trade-chart-x">
+            <text>6个月前</text><text>4个月前</text><text>2个月前</text><text>现在</text>
+          </view>
+        </view>
+
+        <view class="trade-valuation-side">
+          <view class="trade-value-gauge-card">
+            <text class="trade-side-title">现在的估值怎么样？</text>
+            <view class="trade-gauge-labels"><text>低估</text><text>合理</text><text>高估</text></view>
+            <view class="trade-gauge-track"><view></view></view>
+            <text class="trade-gauge-score">当前估值分位：42%</text>
+            <text class="trade-side-copy">估值处于合理区间，可以小种草。</text>
+          </view>
+          <view class="trade-company-card">
+            <text class="trade-side-title">公司价值在变好吗？</text>
+            <view><text>盈利增速</text><text>+12.35%</text></view>
+            <view><text>ROE</text><text>18.62%</text></view>
+            <view><text>净利润</text><text>持续增长中</text></view>
+            <text class="trade-company-summary">综合来看，公司内在价值稳步提升中。</text>
+          </view>
+        </view>
       </view>
-    </view>
 
-    <view class="trade-big-chart">
-      <view class="trade-big-dot" wx:for="{{selectedFund.trend}}" wx:for-item="point" wx:key="*this" style="margin-bottom: {{point}}rpx;"></view>
-    </view>
-    <view class="trade-period-tabs">
-      <text
-        class="trade-period {{activePeriod === item ? 'trade-period-active' : ''}}"
-        wx:for="{{chartPeriods}}"
-        wx:key="*this"
-        data-period="{{item}}"
-        bindtap="switchPeriod"
-      >{{item}}</text>
-    </view>
-
-    <view class="trade-value-panel">
-      <view class="trade-value-head">
-        <text class="trade-value-title">基金概况</text>
-        <text class="trade-value-more">更多 ›</text>
+      <view class="trade-scenario-section">
+        <text class="trade-scenario-title">不同市场环境下的表现</text>
+        <scroll-view class="trade-scenario-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+          <view class="trade-scenario-row">
+            <view class="trade-scenario-card"><text>慢牛向上</text><text>温和上涨，稳步成长</text><text>价格线 +15.21%</text><text>价值线 +8.67%</text></view>
+            <view class="trade-scenario-card"><text>慢熊下行</text><text>温和下跌，价值支撑</text><text>价格线 -12.34%</text><text>价值线 -2.15%</text></view>
+            <view class="trade-scenario-card"><text>快速上涨</text><text>市场情绪高涨</text><text>价格线 +28.76%</text><text>价值线 +7.89%</text></view>
+            <view class="trade-scenario-card"><text>急跌下挫</text><text>短期恐慌下跌</text><text>价格线 +2.36%</text><text>价值线 +3.76%</text></view>
+          </view>
+        </scroll-view>
       </view>
-      <text class="trade-value-copy">这只基金跟踪{{sector.marketName}}相关指数，适合用来观察真实市场分类下的长期机会。{{sector.name}}是便于理解的子类入口，短期波动和估值位置需要一起看。</text>
-    </view>
 
-    <view class="trade-detail-actions">
-      <button class="trade-detail-secondary" bindtap="addSelectedFundToBasket">加入种草篮</button>
-      <button class="trade-detail-primary" bindtap="openCheckout">模拟买入</button>
+      <view class="trade-detail-tip">
+        <image src="/assets/cat-happy-small-demo.png" mode="aspectFit" />
+        <view>
+          <text>小猫提示</text>
+          <text>市场价格会受情绪影响而波动，但优秀公司的价值会随着时间不断积累。关注价值、忽略噪音，才能收获更好的成长。</text>
+        </view>
+      </view>
+
+      <view class="trade-detail-actions">
+        <button class="trade-detail-secondary" bindtap="addSelectedFundToBasket">加入种草篮</button>
+        <button class="trade-detail-primary" bindtap="openCheckout">模拟买入</button>
+      </view>
     </view>
   </view>
 
-  <view class="trade-flow" wx:if="{{tradeView === 'checkout'}}">
-    <view class="trade-flow-nav">
-      <button class="trade-flow-back" bindtap="closeFlowView">‹</button>
-      <text class="trade-flow-title">种草篮</text>
-      <button class="trade-flow-help" bindtap="handleSwitchSector">?</button>
-    </view>
+  <view class="trade-flow trade-basket-flow" wx:if="{{tradeView === 'basket'}}">
+      <view class="trade-flow-nav">
+        <button class="trade-flow-back" bindtap="closeFlowView">‹</button>
+        <view class="trade-flow-title">种草篮</view>
+        <button class="trade-flow-help" bindtap="handleSwitchSector">?</button>
+      </view>
 
     <view class="trade-checkout-hero">
-      <image class="trade-checkout-cat" src="/assets/trade/cat-basket.png" mode="aspectFit" />
-      <view class="trade-checkout-bubble">交给我吧！把喜欢的ETF先放进篮子，再慢慢确认。</view>
+      <image class="trade-checkout-cat" src="/assets/trade/cat-basket-demo.jpg" mode="aspectFit" />
+      <view class="trade-checkout-bubble">一起研究这些好标的吧！</view>
     </view>
 
-    <text class="trade-checkout-title">购买确认</text>
-    <view class="trade-cart-list">
+    <view class="trade-basket-head">
+      <text>共 {{cartCount}} 个标的</text>
+      <button class="trade-clear-basket" bindtap="clearBasket">清空</button>
+    </view>
+    <view class="trade-cart-list trade-checkout-cart-list">
       <view class="trade-cart-row" wx:for="{{cartItems}}" wx:key="id">
-        <text class="trade-cart-dot">💎</text>
+        <text class="trade-cart-dot">✓</text>
         <view class="trade-cart-main">
           <text class="trade-cart-name">{{item.name}}</text>
           <text class="trade-cart-code">{{item.code}}</text>
-          <text class="trade-cart-desc">预计买入 {{item.estimateShare}} 份</text>
+          <text class="trade-cart-desc">{{item.changePercent}}</text>
         </view>
         <view class="trade-cart-price">
           <text>{{item.latest}}</text>
-          <text>{{item.changePercent}}</text>
+          <text>¥{{item.allocationAmount}}</text>
         </view>
-        <button class="trade-cart-remove" data-id="{{item.id}}" bindtap="removeCartItem">×</button>
+        <view class="trade-cart-remove" data-id="{{item.id}}" catchtap="removeCartItem">×</view>
       </view>
     </view>
     <view class="trade-checkout-summary">
-      <text>预计买入金额</text>
-      <text>¥{{purchaseAmount}}</text>
+      <text>预计金额（可用）</text>
+      <text>{{purchaseAmount}} 元</text>
+      <button class="trade-checkout-inline" bindtap="beginCheckout">去结算</button>
     </view>
-    <view class="trade-allocation-panel">
-      <view class="trade-allocation-head">
-        <text>分配方式</text>
-        <text>可用资金 ¥{{availableAmount}}</text>
+  </view>
+
+  <view class="trade-flow trade-checkout-flow" wx:if="{{tradeView === 'checkout'}}">
+      <view class="trade-flow-nav">
+        <button class="trade-flow-back" bindtap="closeFlowView">‹</button>
+        <view class="trade-flow-title">确认订单</view>
+        <button class="trade-flow-help" bindtap="handleSwitchSector">?</button>
       </view>
+
+      <view class="trade-order-strip">
+        <view>
+          <text class="trade-order-label">模拟组合</text>
+          <text class="trade-order-title">{{sector.marketName}}赛道</text>
+        </view>
+        <view>
+          <text class="trade-order-label">标的数量</text>
+          <text class="trade-order-title">{{cartCount}} 个</text>
+        </view>
+        <view>
+          <text class="trade-order-label">买入金额</text>
+          <text class="trade-order-title">¥{{purchaseAmount}}</text>
+        </view>
+      </view>
+
+      <view class="trade-allocation-panel">
+        <view class="trade-allocation-head">
+          <text>购买金额</text>
+        <text>可用资金 {{availableAmount}} 元</text>
+      </view>
+      <view class="trade-amount-input">
+        <text>{{purchaseAmount}}</text>
+        <text>元</text>
+      </view>
+      <text class="trade-allocation-title">分配方式</text>
       <view class="trade-allocation-options">
         <text class="trade-allocation-option trade-allocation-option-active">{{allocationMode}}</text>
         <text class="trade-allocation-option">自定义</text>
@@ -304,57 +498,90 @@
           <text>¥{{item.allocationAmount}}</text>
         </view>
       </view>
+      <text class="trade-allocation-note">将按等额金额分配到 {{cartCount}} 个标的</text>
     </view>
     <view class="trade-advisor-panel">
-      <text class="trade-advisor-title">顾问团投票</text>
-      <view class="trade-advisors">
-        <view class="trade-advisor" wx:for="{{advisorVotes}}" wx:key="name">
-          <text class="trade-advisor-avatar">{{item.icon}}</text>
+      <view class="trade-advisor-head">
+        <text>顾问团投票</text>
+        <view bindtap="refreshAdvisorVotes">
+          <text>接入 Agent</text>
+          <text>{{advisors[0].status === 'agent' ? '实时' : '模拟'}}</text>
+        </view>
+      </view>
+      <view class="trade-advisor-list">
+        <view
+          class="trade-advisor-card {{activeAdvisorIndex === index ? 'trade-advisor-card-active' : ''}}"
+          wx:for="{{advisors}}"
+          wx:key="name"
+          data-index="{{index}}"
+          bindtap="selectAdvisor"
+        >
+          <image class="trade-advisor-avatar" src="{{item.avatar}}" mode="aspectFill" />
           <text class="trade-advisor-name">{{item.name}}</text>
+          <text class="trade-advisor-role">{{item.role}}</text>
           <text class="trade-advisor-vote">{{item.vote}}</text>
         </view>
       </view>
-      <text class="trade-advisor-note">顾问团建议：可以分批买入，长期持有更稳。</text>
+      <view class="trade-advisor-detail" wx:if="{{activeAdvisor}}">
+        <image class="trade-advisor-detail-avatar" src="{{activeAdvisor.avatar}}" mode="aspectFill" />
+        <view class="trade-advisor-detail-copy">
+          <view class="trade-advisor-detail-headline">
+            <text>{{activeAdvisor.name}}</text>
+            <text>{{activeAdvisor.confidence}}% 置信度</text>
+          </view>
+          <text class="trade-advisor-detail-role">{{activeAdvisor.role}} · {{activeAdvisor.vote}}</text>
+          <text class="trade-advisor-detail-reason">{{activeAdvisor.rationale}}</text>
+        </view>
+      </view>
+      <view class="trade-advisor-result">
+        <text>3 票赞成</text>
+        <text>1 票谨慎</text>
+        <text>{{advisorSummary}}</text>
+      </view>
+    </view>
+    <view class="trade-checkout-note">
+      <text class="trade-checkout-note-title">猫咪提示</text>
+      <text>这只是模拟买入，确认后会进入成功页和持仓页，方便完整演示交易流程。</text>
     </view>
     <button class="trade-confirm-buy" bindtap="confirmPurchase">确认买入</button>
   </view>
 
-  <view class="trade-flow" wx:if="{{tradeView === 'success'}}">
-    <view class="trade-flow-nav">
-      <button class="trade-flow-back" bindtap="closeFlowView">‹</button>
-      <text class="trade-flow-title">买入成功</text>
-      <button class="trade-flow-help" bindtap="handleSwitchSector">?</button>
-    </view>
+  <view class="trade-flow trade-success-flow" wx:if="{{tradeView === 'success'}}">
+      <view class="trade-flow-nav">
+        <button class="trade-flow-back" bindtap="closeFlowView">‹</button>
+        <view class="trade-flow-title">买入成功</view>
+        <button class="trade-flow-help trade-success-done" bindtap="openHoldings">完成</button>
+      </view>
 
-    <image class="trade-success-cat" src="/assets/trade/cat-purchase-success.png" mode="aspectFit" />
-    <text class="trade-success-title">买入成功！</text>
-    <text class="trade-success-copy">小猫已经帮你下单啦，一起期待它的成长吧。</text>
-    <view class="trade-success-stats">
-      <view>
-        <text>买入金额</text>
-        <text>¥{{purchaseAmount}}</text>
-      </view>
-      <view>
-        <text>买入标的</text>
-        <text>{{cartCount}} 个</text>
-      </view>
-      <view>
-        <text>下单时间</text>
-        <text>{{orderTime}}</text>
+    <view class="trade-success-hero">
+      <image class="trade-success-cat" src="/assets/trade/success-vault-hero-demo.jpg" mode="aspectFill" />
+      <view class="trade-success-bubble">
+        <text>已把这株投资小苗</text>
+        <text>放进保险柜喵</text>
       </view>
     </view>
-    <view class="trade-success-list">
-      <view class="trade-cart-row" wx:for="{{cartItems}}" wx:key="id">
-        <text class="trade-cart-dot">💎</text>
-        <view class="trade-cart-main">
-          <text class="trade-cart-name">{{item.name}}</text>
-          <text class="trade-cart-code">{{item.code}}</text>
-          <text class="trade-cart-desc">买入 {{item.estimateShare}} 份 · ¥{{item.allocationAmount}}</text>
-        </view>
-        <view class="trade-success-row-value">
-          <text>{{item.changePercent}}</text>
-          <text>{{item.floatingProfit}}</text>
-        </view>
+    <view class="trade-success-summary-card">
+      <view><text>买入金额</text><text>¥{{purchaseAmount}}</text></view>
+      <view><text>买入标的</text><text>{{cartCount}} 个</text></view>
+      <view><text>下单时间</text><text>{{orderTime}}</text></view>
+    </view>
+    <view class="trade-success-deposit" bindtap="openHoldings">
+      <text>已放入持仓中，可随时查看</text>
+      <text>去持仓看看 ›</text>
+    </view>
+    <text class="trade-success-section-title">本次买入明细</text>
+    <view class="trade-success-product">
+      <view class="trade-success-icon">💄</view>
+      <view>
+        <text class="trade-success-product-name">{{cartItems[0].name}}</text>
+        <text class="trade-success-product-code">{{cartItems[0].code}}　主题</text>
+      </view>
+      <text class="trade-success-share">{{cartItems[0].estimateShare}} 份</text>
+    </view>
+    <view class="trade-success-cheer">
+      <view>
+        <text>好棒！你又完成了一次投资种草</text>
+        <text>长期持有，静待花开，小猫会一直陪着你喵。</text>
       </view>
     </view>
     <view class="trade-success-actions">
@@ -364,11 +591,11 @@
   </view>
 
   <view class="trade-flow trade-holding-view" wx:if="{{tradeView === 'holdings'}}">
-    <view class="trade-flow-nav">
-      <button class="trade-flow-back" bindtap="closeFlowView">‹</button>
-      <text class="trade-flow-title">我的持仓</text>
-      <button class="trade-flow-help" bindtap="handleSwitchSector">?</button>
-    </view>
+      <view class="trade-flow-nav">
+        <button class="trade-flow-back" bindtap="closeFlowView">‹</button>
+        <view class="trade-flow-title">持仓</view>
+        <button class="trade-flow-help" bindtap="handleSwitchSector">?</button>
+      </view>
 
     <view class="trade-holding-header">
       <view>
@@ -376,7 +603,7 @@
         <text class="trade-holding-asset">100,000.00</text>
         <text class="trade-holding-profit">今日收益 +1,286.23  +1.29%</text>
       </view>
-      <image class="trade-holding-cat" src="/assets/trade/cat-holdings.png" mode="aspectFit" />
+      <image class="trade-holding-cat" src="/assets/trade/holdings-hero-cat-demo.jpg" mode="aspectFill" />
     </view>
     <view class="trade-holding-tools">
       <text>交易记录</text>
@@ -394,6 +621,7 @@
           <view class="trade-holding-weight-track">
             <view class="trade-holding-weight-fill" style="width: {{item.holdingWeight}};"></view>
           </view>
+          <image class="trade-holding-trend" src="{{item.trendAsset}}" mode="aspectFit" />
         </view>
         <view class="trade-holding-value">
           <text>{{item.holdingWeight}}</text>
@@ -404,7 +632,7 @@
       </view>
     </view>
     <view class="trade-holding-footer">
-      <text>长期持有，静待花开 🌼</text>
+      <text>长期持有，静待花开</text>
     </view>
   </view>
 

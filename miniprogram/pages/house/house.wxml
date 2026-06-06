@@ -8,11 +8,11 @@
     show-scrollbar="{{false}}"
   >
     <view class="scene" style="{{sceneWidthStyle}}">
-      <image class="scene-bg" src="/assets/room-portrait-v14.png" mode="scaleToFill" />
+      <image class="scene-bg" src="/assets/room-portrait-v14-demo.jpg" mode="scaleToFill" />
       <view class="scene-vignette"></view>
 
       <view class="profile-card">
-        <image src="/assets/cat-avatar-v6.png" mode="aspectFit" />
+        <image src="/assets/cat-avatar-v6-demo.jpg" mode="aspectFit" />
         <view>
           <text class="name">小橘</text>
           <text class="level">Lv.12</text>

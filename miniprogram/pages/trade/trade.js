@@ -2,22 +2,34 @@ const { sectors, getSectorById } = require('../../data/sectorData');
 const { buildSectorEtfData } = require('../../data/etfMockData');
 
 const TAB_META = {
+  全部: {
+    nameTitle: '基金名称',
+    valueTitle: '净值/涨跌幅',
+    actionTitle: '操作',
+    moreText: '查看更多标的'
+  },
   指数: {
     nameTitle: '指数名称',
     valueTitle: '最新价',
-    actionTitle: '跟踪基金'
+    actionTitle: '跟踪基金',
+    moreText: '查看更多指数'
   },
-  ETF基金: {
+  ETF: {
     nameTitle: '基金名称',
     valueTitle: '最新净值',
-    actionTitle: '操作'
+    actionTitle: '操作',
+    moreText: '查看更多ETF'
   },
   场外基金: {
     nameTitle: '基金名称',
     valueTitle: '最新净值',
-    actionTitle: '操作'
+    actionTitle: '操作',
+    moreText: '查看更多场外基金'
   }
 };
+
+const RESEARCH_TABS = ['指数', 'ETF', '场外基金'];
+const FUND_TABS = ['全部', 'ETF', '场外基金', '指数'];
 
 Page({
   data: {
@@ -27,7 +39,7 @@ Page({
       { icon: '🐟', value: 5 }
     ],
     sectors,
-    tabs: ['指数', 'ETF基金', '场外基金'],
+    tabs: RESEARCH_TABS,
     activeTab: '指数',
     tradeView: 'research',
     chartPeriods: ['1D', '1W', '1M', '3M', '1Y', '5Y'],
@@ -39,6 +51,7 @@ Page({
     listNameTitle: TAB_META.指数.nameTitle,
     listValueTitle: TAB_META.指数.valueTitle,
     listActionTitle: TAB_META.指数.actionTitle,
+    listMoreText: TAB_META.指数.moreText,
     sector: null,
     overview: null,
     lists: {},
@@ -46,16 +59,60 @@ Page({
     cartItems: [],
     cartCount: 0,
     selectedFund: null,
+    returnView: 'research',
     purchaseAmount: '100,000.00',
     availableAmount: '100,000.00',
     allocationMode: '等额买入',
-    orderTime: '',
-    advisorVotes: [
-      { name: '芒格喵', role: '价值守护者', vote: '赞成', icon: '👓' },
-      { name: '巴菲特喵', role: '耐心陪伴者', vote: '赞成', icon: '🎩' },
-      { name: '费雪喵', role: '成长观察员', vote: '赞成', icon: '📘' },
-      { name: '达利欧喵', role: '波动提醒者', vote: '谨慎', icon: '🧭' }
-    ]
+    advisors: [
+      {
+        agentId: 'valuation-cat',
+        endpointKey: 'advisorAgentEndpoint',
+        avatar: '/assets/trade/advisor-munger-demo.jpg',
+        name: '芒格喵',
+        role: '估值理性派',
+        vote: '可以分批买入',
+        rationale: '价格不算贵，可以慢慢持有',
+        confidence: 86,
+        status: 'mock'
+      },
+      {
+        agentId: 'trend-cat',
+        endpointKey: 'advisorAgentEndpoint',
+        avatar: '/assets/trade/advisor-buffett-demo.jpg',
+        name: '巴菲特喵',
+        role: '护城河派',
+        vote: '长期持有更佳',
+        rationale: '行业空间还在，未来可期',
+        confidence: 91,
+        status: 'mock'
+      },
+      {
+        agentId: 'growth-cat',
+        endpointKey: 'advisorAgentEndpoint',
+        avatar: '/assets/trade/advisor-fisher-demo.jpg',
+        name: '费雪喵',
+        role: '成长空间派',
+        vote: '赞成买入',
+        rationale: '成长确定性较强',
+        confidence: 88,
+        status: 'mock'
+      },
+      {
+        agentId: 'risk-cat',
+        endpointKey: 'advisorAgentEndpoint',
+        avatar: '/assets/trade/advisor-dalio-demo.jpg',
+        name: '达利欧喵',
+        role: '风控仓位派',
+        vote: '控制仓位',
+        rationale: '短期波动难免，注意回撤',
+        confidence: 74,
+        status: 'mock'
+      }
+    ],
+    advisorSummary: '顾问团建议：可以分批买入，长期持有更佳',
+    activeAdvisorIndex: 0,
+    activeAdvisor: null,
+    orderTime: ''
   },
 
   onLoad(options) {
@@ -70,11 +127,18 @@ Page({
 
   loadSectorData(sectorId) {
     const rawSector = getSectorById(sectorId);
+    const marketName = rawSector.marketName || rawSector.name;
+    const isSubSector = marketName !== rawSector.name;
     const sector = Object.assign({}, rawSector, {
-      marketName: rawSector.marketName || rawSector.name
+      marketName,
+      isSubSector,
+      entryCopy: isSubSector
+        ? `${rawSector.name}是便于理解的子类入口`
+        : `${rawSector.name}就是当前研究赛道入口`
     });
     const etfData = buildSectorEtfData(sector);
     const activeTab = '指数';
+    const activeAdvisor = this.data.advisors[this.data.activeAdvisorIndex] || this.data.advisors[0];
 
     wx.setStorageSync('selectedSectorId', sector.id);
     this.setData({
@@ -84,11 +148,13 @@ Page({
       overview: etfData.overview,
       lists: etfData.lists,
       activeTab,
+      tabs: RESEARCH_TABS,
       tradeView: 'research',
       selectedFund: null,
       activeCategoryIndex: 0,
       selectedFilterText: '综合排序',
-      displayItems: this.buildDisplayItems(etfData.lists[activeTab], activeTab)
+      activeAdvisor,
+      displayItems: this.buildDisplayItems(this.getTabItems(etfData.lists, activeTab), activeTab)
     }, () => {
       this.applyTabMeta(activeTab);
       this.syncCartItems(etfData.lists);
@@ -162,8 +228,10 @@ Page({
     return categoryMap[sector.id] || categoryMap.beauty;
   },
 
-  buildDisplayItems(items, activeTab) {
-    return (items || []).map((item) => {
+  buildDisplayItems(items, activeTab, filterText) {
+    const sortedItems = this.sortDisplayItems(items || [], activeTab, filterText || this.data.selectedFilterText);
+
+    return sortedItems.map((item) => {
       const displayActionText = activeTab === '指数'
         ? item.actionText
         : (item.followed ? '已加入' : '加入种草篮');
@@ -172,16 +240,56 @@ Page({
     });
   },
 
+  sortDisplayItems(items, activeTab, filterText) {
+    if (activeTab === '指数' || filterText === '综合排序') {
+      return items.slice();
+    }
+
+    const parsePercent = (value) => Number(String(value).replace(/[+%]/g, '')) || 0;
+    const parseNumber = (value) => Number(String(value).replace(/,/g, '')) || 0;
+
+    return items.slice().sort((a, b) => {
+      if (filterText === '近1年涨幅优先') {
+        return parsePercent(b.changePercent) - parsePercent(a.changePercent);
+      }
+
+      if (filterText === '净值从低到高') {
+        return parseNumber(a.latest) - parseNumber(b.latest);
+      }
+
+      if (filterText === '关注度优先') {
+        return Number(b.followed) - Number(a.followed) || parsePercent(b.changePercent) - parsePercent(a.changePercent);
+      }
+
+      return 0;
+    });
+  },
+
+  getTabItems(lists, activeTab) {
+    if (activeTab === '全部') {
+      return []
+        .concat(lists.ETF基金 || [])
+        .concat(lists.场外基金 || []);
+    }
+
+    if (activeTab === 'ETF') {
+      return lists.ETF基金 || [];
+    }
+
+    return lists[activeTab] || [];
+  },
+
   applyTabMeta(activeTab) {
     const meta = TAB_META[activeTab] || TAB_META.指数;
     this.setData({
       listNameTitle: meta.nameTitle,
       listValueTitle: meta.valueTitle,
-      listActionTitle: meta.actionTitle
+      listActionTitle: meta.actionTitle,
+      listMoreText: meta.moreText
     });
   },
 
-  syncCartItems(lists) {
+  syncCartItems(lists, callback) {
     const sourceLists = lists || this.data.lists;
     const rawCartItems = []
       .concat(sourceLists.ETF基金 || [])
@@ -193,7 +301,7 @@ Page({
     this.setData({
       cartItems,
       cartCount: cartItems.length
-    });
+    }, callback);
   },
 
   buildCartItems(items) {
@@ -242,8 +350,10 @@ Page({
       itemList: ['综合排序', '近1年涨幅优先', '净值从低到高', '关注度优先'],
       success: (res) => {
         const options = ['综合排序', '近1年涨幅优先', '净值从低到高', '关注度优先'];
+        const selectedFilterText = options[res.tapIndex] || options[0];
         this.setData({
-          selectedFilterText: options[res.tapIndex] || options[0]
+          selectedFilterText,
+          displayItems: this.buildDisplayItems(this.getTabItems(this.data.lists, this.data.activeTab), this.data.activeTab, selectedFilterText)
         });
       }
     });
@@ -283,7 +393,7 @@ Page({
 
     this.setData({
       lists,
-      displayItems: this.buildDisplayItems(lists[this.data.activeTab], this.data.activeTab)
+      displayItems: this.buildDisplayItems(this.getTabItems(lists, this.data.activeTab), this.data.activeTab)
     }, () => {
       this.syncCartItems(lists);
     });
@@ -314,6 +424,7 @@ Page({
     this.setData({
       selectedFund: item,
       activePeriod: '1D',
+      returnView: this.data.tradeView,
       tradeView: 'detail'
     }, this.scrollTop);
   },
@@ -342,7 +453,7 @@ Page({
 
     this.setData({
       lists,
-      displayItems: this.buildDisplayItems(lists[this.data.activeTab], this.data.activeTab),
+      displayItems: this.buildDisplayItems(this.getTabItems(lists, this.data.activeTab), this.data.activeTab),
       selectedFund: Object.assign({}, fund, { followed: true })
     }, () => {
       this.syncCartItems(lists);
@@ -361,12 +472,13 @@ Page({
       this.setData({
         lists,
         selectedFund: Object.assign({}, fund, { followed: true }),
-        displayItems: this.buildDisplayItems(lists[this.data.activeTab], this.data.activeTab)
+        displayItems: this.buildDisplayItems(this.getTabItems(lists, this.data.activeTab), this.data.activeTab)
       }, () => {
-        this.syncCartItems(lists);
-        this.setData({
-          tradeView: 'checkout'
-        }, this.scrollTop);
+        this.syncCartItems(lists, () => {
+          this.setData({
+            tradeView: 'checkout'
+          }, this.scrollTop);
+        });
       });
       return;
     }
@@ -380,8 +492,87 @@ Page({
     }
 
     this.setData({
+      tradeView: 'basket'
+    }, this.scrollTop);
+  },
+
+  beginCheckout() {
+    if (!this.data.cartCount) {
+      wx.showToast({
+        title: '先加入1个标的',
+        icon: 'none'
+      });
+      return;
+    }
+
+    this.setData({
       tradeView: 'checkout'
     }, this.scrollTop);
+  },
+
+  refreshAdvisorVotes() {
+    const endpoint = wx.getStorageSync('advisorAgentEndpoint');
+    if (!endpoint) {
+      wx.showToast({
+        title: '顾问团已给出模拟建议',
+        icon: 'none'
+      });
+      return;
+    }
+
+    const payload = this.buildAdvisorPayload();
+    wx.request({
+      url: endpoint,
+      method: 'POST',
+      data: payload,
+      success: (res) => {
+        const advisors = this.normalizeAdvisorVotes(res.data && res.data.advisors);
+        if (!advisors.length) return;
+        this.setData({
+          advisors,
+          activeAdvisor: advisors[this.data.activeAdvisorIndex] || advisors[0],
+          advisorSummary: res.data.summary || this.data.advisorSummary
+        });
+      },
+      fail: () => {
+        wx.showToast({
+          title: '顾问团暂时离线',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  buildAdvisorPayload() {
+    return {
+      sector: this.data.sector,
+      amount: this.data.purchaseAmount,
+      allocationMode: this.data.allocationMode,
+      holdings: this.data.cartItems.map((item) => ({
+        id: item.id,
+        name: item.name,
+        code: item.code,
+        latest: item.latest,
+        changePercent: item.changePercent,
+        allocationAmount: item.allocationAmount
+      }))
+    };
+  },
+
+  normalizeAdvisorVotes(advisors) {
+    if (!Array.isArray(advisors)) return [];
+    return advisors.slice(0, 4).map((item, index) => Object.assign({}, this.data.advisors[index] || {}, item, {
+      status: item.status || 'agent'
+    }));
+  },
+
+  selectAdvisor(e) {
+    const index = Number(e.currentTarget.dataset.index || 0);
+    const activeAdvisor = this.data.advisors[index] || this.data.advisors[0];
+    this.setData({
+      activeAdvisorIndex: index,
+      activeAdvisor
+    });
   },
 
   markFundFollowed(fundId) {
@@ -412,7 +603,7 @@ Page({
 
     this.setData({
       lists,
-      displayItems: this.buildDisplayItems(lists[this.data.activeTab], this.data.activeTab)
+      displayItems: this.buildDisplayItems(this.getTabItems(lists, this.data.activeTab), this.data.activeTab)
     }, () => {
       this.syncCartItems(lists);
       if (!this.data.cartCount) {
@@ -441,6 +632,21 @@ Page({
   },
 
   closeFlowView() {
+    if (this.data.tradeView === 'checkout') {
+      this.setData({
+        tradeView: 'basket'
+      }, this.scrollTop);
+      return;
+    }
+
+    if (this.data.tradeView === 'detail') {
+      this.setData({
+        tradeView: this.data.returnView || 'research',
+        selectedFund: null
+      }, this.scrollTop);
+      return;
+    }
+
     this.setData({
       tradeView: 'research'
     }, this.scrollTop);
@@ -454,7 +660,7 @@ Page({
 
     this.setData({
       lists,
-      displayItems: this.buildDisplayItems(lists[this.data.activeTab], this.data.activeTab),
+      displayItems: this.buildDisplayItems(this.getTabItems(lists, this.data.activeTab), this.data.activeTab),
       tradeView: 'research'
     }, () => {
       this.syncCartItems(lists);
@@ -466,26 +672,35 @@ Page({
     this.setData({
       activeTab,
       activeCategoryIndex: 0,
-      displayItems: this.buildDisplayItems(this.data.lists[activeTab], activeTab)
+      displayItems: this.buildDisplayItems(this.getTabItems(this.data.lists, activeTab), activeTab)
     }, () => {
       this.applyTabMeta(activeTab);
     });
   },
 
+  handleMoreTap() {
+    if (this.data.tradeView === 'research' && this.data.activeTab === '指数') {
+      this.continueResearch();
+      return;
+    }
+
+    wx.showToast({
+      title: '已展示当前筛选结果',
+      icon: 'none'
+    });
+  },
+
   continueResearch() {
-    const activeTab = 'ETF基金';
+    const activeTab = '全部';
     this.setData({
       activeTab,
-      tradeView: 'research',
+      tabs: FUND_TABS,
+      tradeView: 'fundList',
       activeCategoryIndex: 0,
-      displayItems: this.buildDisplayItems(this.data.lists[activeTab], activeTab)
+      displayItems: this.buildDisplayItems(this.getTabItems(this.data.lists, activeTab), activeTab)
     }, () => {
       this.applyTabMeta(activeTab);
-      wx.pageScrollTo({
-        selector: '.trade-list-card',
-        duration: 260,
-        fail() {}
-      });
+      this.scrollTop();
     });
   },
 

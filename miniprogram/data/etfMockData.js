@@ -34,7 +34,7 @@ const sectorRows = {
     ],
     etf: [
       ['易方达中证消费电子ETF', '562950', '1.1842', '+1.06%', '关注', trendB, true],
-      ['华夏中证数码产品ETF', '159732', '0.9348', '+0.74%', '关注', trendC, false],
+      ['华夏中证消费电子ETF', '159732', '0.9348', '+0.74%', '关注', trendC, false],
       ['富国智能终端ETF', '516280', '1.0462', '+0.69%', '关注', trendA, false],
       ['嘉实消费电子ETF', '159779', '0.9168', '+0.52%', '关注', trendB, false]
     ],
@@ -42,7 +42,7 @@ const sectorRows = {
       ['南方消费电子联接A', '012345', '1.0218', '+0.61%', '自选', trendA, false],
       ['华夏智能硬件联接A', '013228', '0.9981', '+0.55%', '自选', trendB, false],
       ['易方达科技消费联接A', '014119', '1.0876', '+0.48%', '自选', trendC, false],
-      ['嘉实数码创新联接A', '015731', '0.9732', '+0.39%', '自选', trendA, false]
+      ['嘉实消费电子联接A', '015731', '0.9732', '+0.39%', '自选', trendA, false]
     ]
   },
   robot: {
@@ -153,6 +153,12 @@ const sectorRows = {
 };
 
 function toListItem(row, prefix, index) {
+  const trendAssets = [
+    '/assets/trade/sparkline-a.png',
+    '/assets/trade/sparkline-b.png',
+    '/assets/trade/sparkline-c.png'
+  ];
+
   return {
     id: `${prefix}-${index + 1}`,
     name: row[0],
@@ -161,6 +167,7 @@ function toListItem(row, prefix, index) {
     changePercent: row[3],
     actionText: row[4],
     trend: row[5],
+    trendAsset: trendAssets[index % trendAssets.length],
     followed: Boolean(row[6])
   };
 }
@@ -171,7 +178,7 @@ function buildSectorEtfData(sector) {
 
   return {
     sectorId: sector.id,
-    sectorName: sector.name,
+    sectorName: sector.marketName || sector.name,
     overview: {
       oneYearChange: overview[0],
       heat: overview[1],
