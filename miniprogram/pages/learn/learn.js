@@ -8,6 +8,7 @@ Page({
       { icon: '🐟', value: 5 }
     ],
     sectors,
+    sectorRows: [sectors.slice(0, 4), sectors.slice(4)],
     selectedSectorId: sectors[0].id,
     selectedSector: sectors[0]
   },

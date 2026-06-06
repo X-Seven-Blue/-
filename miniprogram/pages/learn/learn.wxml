@@ -1,6 +1,6 @@
 <view class="learn-page">
   <view class="learn-hero">
-    <image class="learn-room-bg" src="/assets/room-portrait-v15.png" mode="aspectFill" />
+    <image class="learn-room-bg" src="/assets/learn/sector-hero-study.png" mode="aspectFill" />
     <view class="learn-hero-mask"></view>
 
     <view class="learn-nav">
@@ -25,7 +25,6 @@
         <text>如果只能研究一个行业，</text>
         <text>你会把时间花在哪里？</text>
       </view>
-      <image class="learn-cat-image" src="/assets/cat-write.png" mode="aspectFit" />
       <view class="learn-desk-shadow"></view>
       <view class="learn-nameplate">
         <text class="learn-name">查理·芒格</text>
@@ -43,19 +42,19 @@
     <text class="learn-panel-subtitle">每个行业都有值得长期研究的价值</text>
 
     <view class="learn-sector-grid">
-      <button
-        class="learn-sector-card {{selectedSectorId === item.id ? 'learn-sector-card-active' : ''}}"
-        wx:for="{{sectors}}"
-        wx:key="id"
-        data-id="{{item.id}}"
-        bindtap="selectSector"
-      >
-        <view class="learn-sector-illustration">
-          <text class="learn-sector-emoji">{{item.visualIcon}}</text>
-        </view>
-        <text class="learn-sector-name">{{item.name}}</text>
-        <text class="learn-sector-desc">{{item.desc}}</text>
-      </button>
+      <view class="learn-sector-row" wx:for="{{sectorRows}}" wx:for-item="row" wx:key="*this">
+        <button
+          class="learn-sector-card {{selectedSectorId === item.id ? 'learn-sector-card-active' : ''}}"
+          wx:for="{{row}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="selectSector"
+        >
+          <image class="learn-sector-image" src="{{item.art}}" mode="aspectFill" lazy-load="false" />
+          <text class="learn-sector-name">{{item.name}}</text>
+          <text class="learn-sector-desc">{{item.desc}}</text>
+        </button>
+      </view>
     </view>
 
     <view class="learn-actions">
