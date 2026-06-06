@@ -1,12 +1,134 @@
-<view class="page-shell">
-  <view class="panel-head">
-    <text>电视</text>
-    <view>模拟交易练习</view>
+<view class="trade-page" wx:if="{{sector}}">
+  <view class="trade-hero">
+    <view class="trade-topbar">
+      <button class="trade-back" bindtap="goBack" aria-label="返回">‹</button>
+      <view class="trade-title-block">
+        <view class="trade-title-row">
+          <text class="trade-title">{{sector.name}}赛道研究中心</text>
+          <button class="trade-help" bindtap="handleSwitchSector" aria-label="切换赛道">?</button>
+        </view>
+        <text class="trade-subtitle">ETF模拟交易 › 赛道研究</text>
+      </view>
+      <view class="trade-resource-list">
+        <view class="trade-resource" wx:for="{{resources}}" wx:key="icon">
+          <text class="trade-resource-icon">{{item.icon}}</text>
+          <text class="trade-resource-value">{{item.value}}</text>
+          <text class="trade-resource-plus">+</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="trade-research-area">
+      <view class="trade-cat-side">
+        <view class="trade-speech">{{sector.catTip}}</view>
+        <image class="trade-cat-image" src="/assets/cat-happy.png" mode="aspectFit" />
+      </view>
+
+      <view class="trade-overview-card">
+        <view class="trade-card-title">
+          <text class="trade-card-icon">🌱</text>
+          <text>赛道概览</text>
+          <text class="trade-more">更多 ›</text>
+        </view>
+        <view class="trade-metrics">
+          <view class="trade-metric">
+            <text class="trade-metric-label">近1年涨跌幅</text>
+            <text class="trade-metric-value">{{overview.oneYearChange}}</text>
+            <view class="trade-mini-line"></view>
+          </view>
+          <view class="trade-metric">
+            <text class="trade-metric-label">赛道热度</text>
+            <text class="trade-fire">🔥🔥</text>
+            <text class="trade-metric-value">{{overview.heat}}<text class="trade-metric-unit">/100</text></text>
+          </view>
+          <view class="trade-metric">
+            <text class="trade-metric-label">估值分位</text>
+            <text class="trade-metric-value">{{overview.valuationPercentile}}</text>
+            <view class="trade-slider"><view class="trade-slider-dot"></view></view>
+          </view>
+        </view>
+        <view class="trade-keywords">
+          <text class="trade-keywords-label">行业关键词：</text>
+          <text class="trade-keyword" wx:for="{{overview.keywords}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+    </view>
   </view>
-  <view class="chart-card">
-    <text class="title">消费 ETF 练习</text>
-    <view class="pink-chart"></view>
-    <text>只展示价格、涨跌幅和走势线，不展示复杂指标。</text>
+
+  <view class="trade-fund-panel">
+    <view class="trade-tabs">
+      <button
+        class="trade-tab {{activeTab === item ? 'trade-tab-active' : ''}}"
+        wx:for="{{tabs}}"
+        wx:key="*this"
+        data-tab="{{item}}"
+        bindtap="switchTab"
+      >{{item}}</button>
+    </view>
+
+    <view class="trade-list-head">
+      <text>基金名称 / 代码</text>
+      <text>净值走势（近1年）</text>
+      <text>单位净值 日涨跌</text>
+    </view>
+
+    <view class="trade-fund-list">
+      <view class="trade-fund-row" wx:for="{{funds}}" wx:key="id">
+        <view class="trade-fund-main">
+          <button
+            class="trade-star {{item.followed ? 'trade-star-active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="toggleFollow"
+            aria-label="关注基金"
+          >★</button>
+          <view class="trade-fund-copy">
+            <text class="trade-fund-name">{{item.name}}</text>
+            <text class="trade-fund-code">{{item.code}}</text>
+            <view class="trade-tags">
+              <text class="trade-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="trade-trend">
+          <view
+            class="trade-trend-bar"
+            wx:for="{{item.trend}}"
+            wx:for-item="point"
+            wx:key="*this"
+            style="height: {{point}}rpx;"
+          ></view>
+        </view>
+
+        <view class="trade-fund-values">
+          <text class="trade-nav">{{item.nav}}</text>
+          <text class="trade-change">{{item.changePercent}}</text>
+          <button class="trade-compare">对比</button>
+          <button class="trade-follow" data-id="{{item.id}}" bindtap="toggleFollow">
+            {{item.followed ? '已关注' : '+ 关注'}}
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <button class="trade-more-funds">查看更多{{activeTab}} ››</button>
   </view>
-  <view class="cat-review">小猫陪你复盘：完成复盘可获得猫罐头。</view>
+
+  <view class="trade-bottom-actions">
+    <button class="trade-tool-button">
+      <text class="trade-tool-icon">☆</text>
+      <text>自选基金</text>
+    </button>
+    <button class="trade-tool-button">
+      <text class="trade-tool-icon">⚖</text>
+      <text>对比篮子</text>
+    </button>
+    <button class="trade-trade-button">
+      <text class="trade-tool-icon">🐾</text>
+      <text>开始模拟交易</text>
+      <text class="trade-trade-arrow">→</text>
+    </button>
+  </view>
+
+  <text class="trade-risk-tip">本页面为模拟交易与学习演示，不构成投资建议。</text>
 </view>
