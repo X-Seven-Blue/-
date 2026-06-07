@@ -1,6 +1,96 @@
-<view class="house-placeholder-page">
-  <view class="house-placeholder-panel">
-    <text class="house-placeholder-title">衣柜</text>
-    <text class="house-placeholder-copy">这里先预留换装功能。</text>
+<view class="wardrobe-page">
+  <view class="wardrobe-shell">
+    <view class="stage">
+      <image class="stage-hero" src="/assets/wardrobe-stage-mobile.png" mode="aspectFill" />
+
+      <view class="wallet-row">
+        <block wx:for="{{wallets}}" wx:key="id">
+          <view class="wallet-pill">
+            <text class="wallet-icon wallet-{{item.id}}">{{item.icon}}</text>
+            <text class="wallet-value">{{item.value}}</text>
+            <text class="wallet-plus">+</text>
+          </view>
+        </block>
+      </view>
+
+      <view class="try-bubble">试穿中</view>
+
+      <view class="side-actions">
+        <button class="side-btn" bindtap="saveLook">
+          <text class="side-icon">☆</text>
+          <text class="side-text">保存搭配</text>
+        </button>
+        <button class="side-btn" bindtap="resetLook">
+          <text class="side-icon">↻</text>
+          <text class="side-text">重置</text>
+        </button>
+      </view>
+    </view>
+
+    <view class="wardrobe-panel">
+      <view class="tabs">
+        <block wx:for="{{tabs}}" wx:key="id">
+          <view class="tab {{activeTab == item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="switchTab">
+            <view class="tab-icon-wrap">
+              <image wx:if="{{item.icon}}" class="tab-img" src="{{item.icon}}" mode="aspectFit" />
+              <text wx:else class="tab-text-icon">{{item.textIcon}}</text>
+            </view>
+            <text class="tab-name">{{item.name}}</text>
+          </view>
+        </block>
+      </view>
+
+      <view class="shop-body">
+        <view class="item-grid">
+          <block wx:for="{{items}}" wx:key="id">
+            <view class="item-card {{item.owned ? 'owned' : ''}} {{selectedItem.id == item.id ? 'selected' : ''}} {{item.locked ? 'locked' : ''}}" data-id="{{item.id}}" bindtap="selectItem">
+              <view class="checkmark" wx:if="{{item.owned}}">✓</view>
+              <view class="item-art">
+                <image wx:if="{{item.icon}}" class="item-img" src="{{item.icon}}" mode="aspectFit" />
+                <view wx:else class="placeholder-art {{item.artClass}}"></view>
+              </view>
+              <text class="item-name">{{item.name}}</text>
+              <view class="item-state owned-state" wx:if="{{item.owned}}">已穿戴</view>
+              <view class="item-state try-state" wx:elif="{{selectedItem.id == item.id}}">试穿中</view>
+              <view class="item-price" wx:elif="{{!item.locked}}">
+                <text class="currency-small currency-{{item.currency}}">{{item.currencyIcon}}</text>
+                <text>{{item.price}}</text>
+              </view>
+              <view class="item-lock" wx:else>
+                <text class="lock-icon">锁</text>
+                <text>{{item.unlock}}</text>
+              </view>
+            </view>
+          </block>
+        </view>
+
+        <view class="detail-card">
+          <text class="detail-title">{{selectedItem.name}}</text>
+          <view class="detail-badge">试穿中</view>
+          <view class="detail-divider"></view>
+          <text class="detail-label">解锁方式：</text>
+          <view class="buy-row">
+            <text>{{selectedItem.unlock}}</text>
+            <view class="buy-price" wx:if="{{selectedItem.price > 0}}">
+              <text class="currency-small currency-{{selectedItem.currency}}">{{selectedItem.currencyIcon}}</text>
+              <text>{{selectedItem.price}}</text>
+            </view>
+          </view>
+          <text class="detail-copy">{{selectedItem.desc}}</text>
+          <button class="buy-btn" bindtap="buySelected">
+            <text class="buy-main">购买</text>
+            <view class="buy-sub" wx:if="{{selectedItem.price > 0}}">
+              <text class="currency-small currency-{{selectedItem.currency}}">{{selectedItem.currencyIcon}}</text>
+              <text>{{selectedItem.price}}</text>
+            </view>
+          </button>
+        </view>
+      </view>
+
+      <view class="hint-bar">
+        <text class="paw">爪</text>
+        <text>小贴士：先试穿，喜欢再带回家~</text>
+      </view>
+    </view>
   </view>
 </view>
