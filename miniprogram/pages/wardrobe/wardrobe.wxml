@@ -3,6 +3,10 @@
     <view class="stage">
       <image class="stage-hero" src="/assets/wardrobe-stage-mobile.png" mode="aspectFill" />
 
+      <view class="exit-btn" bindtap="goBack">
+        <text class="exit-icon">‹</text>
+      </view>
+
       <view class="wallet-row">
         <block wx:for="{{wallets}}" wx:key="id">
           <view class="wallet-pill">
@@ -13,17 +17,30 @@
         </block>
       </view>
 
-      <view class="try-bubble">试穿中</view>
+      <view class="try-bubble">{{selectedItem.name}} · 试穿中</view>
+
+      <view class="dress-showcase">
+        <view class="showcase-glow"></view>
+        <view class="showcase-platform"></view>
+      </view>
+      <image class="live-cat-preview" src="/assets/cat-idle-v6.png" mode="aspectFit" />
+      <view class="cat-preview-layers">
+        <image wx:if="{{lookSlots.hat.icon}}" class="look-layer look-hat" src="{{lookSlots.hat.icon}}" mode="aspectFit" />
+        <view wx:if="{{lookSlots.set}}" class="look-layer look-set placeholder-art {{lookSlots.set.artClass}}"></view>
+        <view wx:elif="{{lookSlots.top}}" class="look-layer look-top placeholder-art {{lookSlots.top.artClass}}"></view>
+        <view wx:if="{{lookSlots.bottom}}" class="look-layer look-bottom placeholder-art {{lookSlots.bottom.artClass}}"></view>
+        <view wx:if="{{lookSlots.accessory}}" class="look-layer look-accessory placeholder-art {{lookSlots.accessory.artClass}}"></view>
+      </view>
 
       <view class="side-actions">
-        <button class="side-btn" bindtap="saveLook">
+        <view class="side-btn" bindtap="saveLook">
           <text class="side-icon">☆</text>
           <text class="side-text">保存搭配</text>
-        </button>
-        <button class="side-btn" bindtap="resetLook">
+        </view>
+        <view class="side-btn" bindtap="resetLook">
           <text class="side-icon">↻</text>
           <text class="side-text">重置</text>
-        </button>
+        </view>
       </view>
     </view>
 
@@ -77,19 +94,47 @@
             </view>
           </view>
           <text class="detail-copy">{{selectedItem.desc}}</text>
-          <button class="buy-btn" bindtap="buySelected">
-            <text class="buy-main">购买</text>
-            <view class="buy-sub" wx:if="{{selectedItem.price > 0}}">
+          <view class="buy-btn" bindtap="buySelected">
+            <text class="buy-main">{{selectedItem.locked ? '未解锁' : selectedItem.owned ? '保存搭配' : '购买'}}</text>
+            <view class="buy-sub" wx:if="{{selectedItem.price > 0 && !selectedItem.locked && !selectedItem.owned}}">
               <text class="currency-small currency-{{selectedItem.currency}}">{{selectedItem.currencyIcon}}</text>
               <text>{{selectedItem.price}}</text>
             </view>
-          </button>
+            <view class="buy-sub" wx:elif="{{selectedItem.owned}}">已拥有</view>
+          </view>
         </view>
       </view>
 
       <view class="hint-bar">
         <text class="paw">爪</text>
         <text>小贴士：先试穿，喜欢再带回家~</text>
+      </view>
+
+      <view class="look-board">
+        <view class="look-board-head">
+          <text class="look-board-title">当前搭配</text>
+          <text class="look-board-sub">换装会实时显示在上方小猫身上</text>
+        </view>
+        <view class="look-chip-row">
+          <block wx:for="{{lookList}}" wx:key="key">
+            <view class="look-chip">
+              <view class="look-chip-icon">
+                <image wx:if="{{item.item.icon}}" class="look-chip-img" src="{{item.item.icon}}" mode="aspectFit" />
+                <view wx:else class="placeholder-art mini {{item.item.artClass}}"></view>
+              </view>
+              <view class="look-chip-text">
+                <text class="look-chip-label">{{item.label}}</text>
+                <text class="look-chip-name">{{item.item.name}}</text>
+              </view>
+            </view>
+          </block>
+        </view>
+        <view class="saved-look-row" wx:if="{{savedLooks.length}}">
+          <text class="saved-title">已保存</text>
+          <block wx:for="{{savedLooks}}" wx:key="id">
+            <view class="saved-look">{{item.title}}</view>
+          </block>
+        </view>
       </view>
     </view>
   </view>

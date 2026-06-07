@@ -1,16 +1,113 @@
-<view class="page-shell">
-  <view class="panel-head">
-    <text>猫咪</text>
-    <view>小橘的自主活动</view>
-  </view>
-  <view class="activity-card">
-    <text class="title">今日自动行为</text>
-    <text>09:20 自己去院子看白菜</text>
-    <text>12:30 午休</text>
-    <text>15:10 写学习便签</text>
-  </view>
-  <view class="closet-card">
-    <text class="title">当前装扮：睡衣</text>
-    <text>首版只开放睡衣，其他衣服后续解锁。</text>
+<view class="cat-page">
+  <view class="cat-room">
+    <view class="cat-wood-frame">
+      <view class="cat-topbar">
+        <button class="cat-back-btn" bindtap="goBack" aria-label="返回">‹</button>
+        <view class="cat-resource-list">
+          <view class="cat-resource" wx:for="{{resources}}" wx:key="label">
+            <text class="cat-resource-icon">{{item.icon}}</text>
+            <text class="cat-resource-value">{{item.value}}</text>
+            <text class="cat-resource-plus">+</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="cat-affinity-card">
+        <view class="cat-affinity-main">
+          <text class="cat-section-title">亲密度</text>
+          <view class="cat-heart-row">
+            <text
+              wx:for="{{heartSlots}}"
+              wx:key="*this"
+              class="cat-heart {{index < filledHearts ? 'cat-heart-full' : 'cat-heart-empty'}}"
+            >♥</text>
+          </view>
+        </view>
+        <view class="cat-affinity-badge">
+          <text>{{affinityLabel}}</text>
+        </view>
+      </view>
+
+      <view class="cat-stage cat-stage-{{currentAction}}">
+        <image class="cat-room-bg" src="/assets/cat/cat-interaction-room.png" mode="aspectFill"></image>
+        <view class="cat-window"></view>
+        <view class="cat-shelf"></view>
+        <view class="cat-plant cat-plant-left"></view>
+        <view class="cat-plant cat-plant-right"></view>
+        <view class="cat-bed"></view>
+        <view class="cat-rug"></view>
+
+        <view class="cat-feedback {{feedbackVisible ? 'cat-feedback-show' : ''}}">
+          <text>{{feedbackText}}</text>
+        </view>
+
+        <view class="cat-effect-layer">
+          <block wx:if="{{currentAction === 'pet'}}">
+            <text class="cat-floating cat-heart-float cat-float-a">♥</text>
+            <text class="cat-floating cat-heart-float cat-float-b">♥</text>
+            <text class="cat-floating cat-sparkle cat-float-c">✦</text>
+            <image class="cat-petting-hand" src="/assets/cat/pet-hand-real.png" mode="aspectFit"></image>
+          </block>
+
+          <block wx:if="{{currentAction === 'feed'}}">
+            <view class="cat-food-bowl">
+              <text class="cat-food-fish">🐟</text>
+              <text class="cat-food-kibble">●●●</text>
+            </view>
+            <text class="cat-floating cat-snack cat-float-a">+好吃</text>
+            <text class="cat-floating cat-sparkle cat-float-c">✦</text>
+          </block>
+
+          <block wx:if="{{currentAction === 'play'}}">
+            <view class="cat-yarn-ball">
+              <text>🧶</text>
+            </view>
+            <view class="cat-toy-string"></view>
+            <text class="cat-floating cat-sparkle cat-float-a">✦</text>
+            <text class="cat-floating cat-sparkle cat-float-b">✦</text>
+          </block>
+
+          <block wx:if="{{currentAction === 'bath'}}">
+            <view class="cat-bath-tub">
+              <view class="cat-bath-water"></view>
+              <view class="cat-bath-foam cat-bath-foam-a"></view>
+              <view class="cat-bath-foam cat-bath-foam-b"></view>
+              <view class="cat-bath-duck">🐤</view>
+            </view>
+            <text class="cat-bubble cat-bubble-a">○</text>
+            <text class="cat-bubble cat-bubble-b">○</text>
+            <text class="cat-bubble cat-bubble-c">○</text>
+            <text class="cat-bubble cat-bubble-d">○</text>
+          </block>
+        </view>
+
+        <view class="cat-portrait-wrap cat-action-{{currentAction}}">
+          <image class="cat-portrait" src="{{catImage}}" mode="aspectFit"></image>
+          <view class="cat-shadow"></view>
+        </view>
+
+        <view class="cat-nameplate">
+          <text class="cat-name">{{cat.name}}</text>
+          <text class="cat-level">Lv.{{cat.level}} · {{cat.mood}}</text>
+        </view>
+      </view>
+
+      <view class="cat-actions">
+        <button
+          wx:for="{{actions}}"
+          wx:key="id"
+          class="cat-action-btn {{currentAction === item.id ? 'cat-action-btn-active' : ''}}"
+          bindtap="handleAction"
+          data-action="{{item.id}}"
+        >
+          <text class="cat-action-icon">{{item.icon}}</text>
+          <text class="cat-action-label">{{item.label}}</text>
+        </button>
+      </view>
+
+      <view class="cat-count-card">
+        <text>今日互动次数：{{interactionsLeft}}/{{dailyLimit}}</text>
+      </view>
+    </view>
   </view>
 </view>

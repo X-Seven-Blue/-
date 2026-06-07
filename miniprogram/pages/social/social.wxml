@@ -1,11 +1,146 @@
-<view class="page-shell">
-  <view class="panel-head">
-    <text>窗户</text>
-    <view>猫猫社区</view>
+<view class="social-page">
+  <view class="social-frame">
+    <view class="social-top">
+      <button class="social-back" bindtap="goBack" aria-label="返回">‹</button>
+      <view class="social-title">
+        <text class="social-title-main">猫友动态</text>
+        <text class="social-title-sub">窗边好友圈</text>
+      </view>
+    </view>
+
+    <view class="social-resources">
+      <view class="social-resource" wx:for="{{resources}}" wx:key="label">
+        <text class="social-resource-icon">{{item.icon}}</text>
+        <text class="social-resource-value">{{item.value}}</text>
+        <text class="social-resource-plus">+</text>
+      </view>
+    </view>
+
+    <view class="social-window-card">
+      <image class="social-window-image" src="/assets/social/social-window-view.png" mode="aspectFill"></image>
+      <view class="social-window-frame-line social-window-vertical"></view>
+      <view class="social-window-frame-line social-window-horizontal"></view>
+      <view class="social-window-caption">
+        <text>今天窗外天气很好</text>
+        <text>适合去朋友家看看</text>
+      </view>
+    </view>
+
+    <view class="social-panel social-friends-panel">
+      <view class="social-section-head">
+        <text>我的朋友</text>
+        <text>{{friends.length}} 位猫友</text>
+      </view>
+      <scroll-view class="social-friend-scroll" scroll-x="true" show-scrollbar="false" enhanced="true">
+        <view class="social-friend-track">
+          <view
+            wx:for="{{friends}}"
+            wx:key="id"
+            class="social-friend {{selectedFriendId === item.id ? 'social-friend-selected' : ''}}"
+            bindtap="selectFriend"
+            data-id="{{item.id}}"
+          >
+            <view class="social-avatar" style="background-color: {{item.color}}">
+              <text>{{item.avatar}}</text>
+            </view>
+            <text class="social-friend-name">{{item.name}}</text>
+            <text class="social-friend-state">{{item.status}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="social-panel social-feed-panel">
+      <view class="social-section-head">
+        <text>好友动态</text>
+        <text>{{selectedFriendName}}</text>
+      </view>
+
+      <view class="social-post-card" wx:for="{{visiblePosts}}" wx:key="id">
+        <view class="social-post-head">
+          <view class="social-avatar social-post-avatar" style="background-color: {{item.color}}">
+            <text>{{item.avatar}}</text>
+          </view>
+          <view class="social-post-meta">
+            <text class="social-post-name">{{item.name}}</text>
+            <text class="social-post-time">{{item.time}}</text>
+          </view>
+          <button class="social-more" aria-label="更多">···</button>
+        </view>
+
+        <text class="social-post-text">{{item.content}}</text>
+
+        <image
+          class="social-post-image"
+          src="{{item.image}}"
+          mode="aspectFill"
+          bindtap="previewPostImage"
+          data-src="{{item.image}}"
+        ></image>
+
+        <view class="social-post-actions">
+          <button
+            class="social-like-btn {{item.liked ? 'social-like-active' : ''}}"
+            bindtap="toggleLike"
+            data-id="{{item.id}}"
+          >
+            <text>♥</text>
+            <text>{{item.likes}}</text>
+          </button>
+          <button class="social-comment-btn" bindtap="tapComment" data-id="{{item.id}}">
+            <text>☁</text>
+            <text>{{item.comments}}</text>
+          </button>
+        </view>
+
+        <view class="social-comment-list" wx:if="{{item.commentList.length}}">
+          <view
+            class="social-comment-item {{comment.mine ? 'social-comment-mine' : ''}}"
+            wx:for="{{item.commentList}}"
+            wx:for-item="comment"
+            wx:key="id"
+          >
+            <text class="social-comment-copy">{{comment.author}}：{{comment.text}}</text>
+            <button
+              wx:if="{{comment.mine}}"
+              class="social-comment-delete"
+              bindtap="deleteMyComment"
+              data-post-id="{{item.id}}"
+              data-comment-id="{{comment.id}}"
+            >删除</button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="social-greeting">
+      <text class="social-greeting-flower">✿</text>
+      <text>今天也去朋友家看看吧～</text>
+      <text class="social-greeting-heart">♥</text>
+    </view>
   </view>
-  <view class="activity-card">
-    <text class="title">猫 Agent 对话</text>
-    <text>团团：我今天梦到一棵知识树。</text>
-    <text>小橘：我把它画成明信片，给主人分享。</text>
+
+  <view class="social-comment-mask" wx:if="{{commentPanelVisible}}" bindtap="closeCommentPanel"></view>
+  <view class="social-comment-panel {{commentPanelVisible ? 'social-comment-panel-show' : ''}}">
+    <view class="social-comment-title">
+      <text>评论 {{activePostName}}</text>
+      <button bindtap="closeCommentPanel">×</button>
+    </view>
+    <textarea
+      class="social-comment-input"
+      value="{{commentDraft}}"
+      bindinput="onCommentInput"
+      maxlength="60"
+      placeholder="写一句温暖的猫友留言～"
+      auto-height="true"
+    ></textarea>
+    <button class="social-comment-submit" bindtap="submitComment">发送评论</button>
+  </view>
+
+  <view class="social-preview-mask" wx:if="{{previewVisible}}" bindtap="closeImagePreview">
+    <view class="social-preview-card" catchtap="noop">
+      <image class="social-preview-image" src="{{previewImage}}" mode="aspectFit"></image>
+      <button class="social-preview-close" bindtap="closeImagePreview">×</button>
+    </view>
   </view>
 </view>

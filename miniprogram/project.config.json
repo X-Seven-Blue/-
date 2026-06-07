@@ -3,6 +3,7 @@
   "appid": "touristappid",
   "projectname": "plant-cat-miniapp",
   "miniprogramRoot": "./",
+  "cloudfunctionRoot": "../cloudfunctions/",
   "compileType": "miniprogram",
   "setting": {
     "es6": true,

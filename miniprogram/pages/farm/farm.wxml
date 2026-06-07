@@ -1,6 +1,131 @@
-<view class="house-placeholder-page">
-  <view class="house-placeholder-panel">
-    <text class="house-placeholder-title">菜园</text>
-    <text class="house-placeholder-copy">这里先预留种菜功能。</text>
+<view class="farm-page">
+  <view class="farm-shell">
+    <view class="farm-top">
+      <view class="farm-back" bindtap="goBack">‹</view>
+      <view class="farm-title">🌿 我的菜园 🌿</view>
+
+      <view class="farm-resource-row">
+        <view class="farm-resource" wx:for="{{resources}}" wx:key="id">
+          <text class="farm-resource-icon">{{item.icon}}</text>
+          <text class="farm-resource-value">{{item.value}}</text>
+          <text class="farm-resource-plus">＋</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="farm-scene">
+      <image class="farm-scene-image" src="/assets/farm/farm-window-scene.png" mode="aspectFill"></image>
+      <view class="farm-floor-tag">🌿 1楼 · 花园</view>
+      <view class="farm-weather">阳光正好，适合照顾作物</view>
+    </view>
+
+    <view class="farm-garden">
+      <view
+        wx:for="{{plots}}"
+        wx:key="id"
+        class="farm-plot farm-plot-{{item.state}} {{selectedPlotId === item.id ? 'farm-plot-active' : ''}}"
+        bindtap="selectPlot"
+        data-id="{{item.id}}"
+      >
+        <view wx:if="{{item.state === 'locked'}}" class="farm-locked">
+          <text class="farm-lock-icon">🔒</text>
+          <text class="farm-lock-text">13级解锁</text>
+        </view>
+
+        <view wx:elif="{{item.state === 'empty'}}" class="farm-empty">
+          <text class="farm-empty-icon">🌱</text>
+          <text class="farm-empty-text">空地</text>
+        </view>
+
+        <view wx:else class="farm-crop">
+          <text class="farm-crop-icon farm-crop-icon-{{item.cropId}}">{{item.icon}}</text>
+          <view class="farm-progress">
+            <view style="width: {{item.progress}}%;"></view>
+          </view>
+          <text wx:if="{{item.state === 'ready'}}" class="farm-ready-label">可收获</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="farm-detail">
+      <view class="farm-section-title">作物详情</view>
+      <view class="farm-detail-card">
+        <view class="farm-detail-icon">
+          <text>{{selectedPlot.icon}}</text>
+        </view>
+        <view class="farm-detail-main">
+          <view class="farm-detail-name-row">
+            <text class="farm-detail-name">{{selectedPlot.cropName}}</text>
+            <text class="farm-status">{{selectedPlot.state === 'ready' ? '成熟' : selectedPlot.state === 'empty' ? '待播种' : '生长中'}}</text>
+          </view>
+          <view class="farm-detail-line">
+            <text>生长进度</text>
+            <view class="farm-detail-bar"><view style="width: {{selectedPlot.progress}}%;"></view></view>
+            <text>{{selectedPlot.progress}}%</text>
+          </view>
+          <view class="farm-detail-line">
+            <text>剩余时间</text>
+            <text>{{selectedPlot.remainingText}}</text>
+          </view>
+          <view class="farm-detail-line">
+            <text>预计收获</text>
+            <text>{{selectedPlot.reward ? '+' + selectedPlot.reward : '--'}}</text>
+          </view>
+          <view class="farm-badges">
+            <text>💧 水分 {{selectedPlot.moisture}}/4</text>
+            <text>🌿 肥力 {{selectedPlot.fertilizer}}/4</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="farm-seed-panel">
+      <view class="farm-section-title">🌿 种子</view>
+      <scroll-view class="farm-seed-scroll" scroll-x="true" show-scrollbar="false">
+        <view class="farm-seed-track">
+          <view
+            wx:for="{{seeds}}"
+            wx:key="id"
+            class="farm-seed {{selectedSeedId === item.id ? 'farm-seed-active' : ''}}"
+            bindtap="selectSeed"
+            data-id="{{item.id}}"
+          >
+            <text class="farm-seed-icon">{{item.icon}}</text>
+            <text class="farm-seed-name">{{item.name}}</text>
+            <text class="farm-seed-stock">{{item.stock}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="farm-actions">
+      <button class="farm-action farm-action-plant" bindtap="plantSelected">
+        <text>🌱</text>
+        <text>播种</text>
+        <text>{{selectedSeed.name}}</text>
+      </button>
+      <button class="farm-action farm-action-water" bindtap="waterPlot">
+        <text>🚿</text>
+        <text>浇水</text>
+        <text>剩余：{{actions.water}}</text>
+      </button>
+      <button class="farm-action farm-action-fertilizer" bindtap="fertilizePlot">
+        <text>🧺</text>
+        <text>施肥</text>
+        <text>剩余：{{actions.fertilizer}}</text>
+      </button>
+      <button class="farm-action farm-action-speed" bindtap="speedUpPlot">
+        <text>⏱</text>
+        <text>加速</text>
+        <text>剩余：{{actions.speed}}</text>
+      </button>
+      <button class="farm-action farm-action-harvest" bindtap="harvestPlot">
+        <text>🧺</text>
+        <text>收获</text>
+        <text>{{selectedPlot.state === 'ready' ? selectedPlot.cropName : '菜篮'}}</text>
+      </button>
+    </view>
+
+    <view class="farm-tip">🐾 {{helperText}} 🌿</view>
   </view>
 </view>

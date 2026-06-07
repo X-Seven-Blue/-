@@ -109,9 +109,17 @@ const catalogs = {
 };
 
 const currencyMeta = {
-  plant: { label: "植物", fallback: "叶" },
-  clover: { label: "四叶草", fallback: "草" },
-  fish: { label: "小鱼", fallback: "鱼" }
+  plant: { label: "植物", fallback: "🌱" },
+  clover: { label: "四叶草", fallback: "☘️" },
+  fish: { label: "小鱼", fallback: "🐟" }
+};
+
+const defaultLook = {
+  hat: "straw",
+  top: "shirt",
+  bottom: "shorts",
+  set: "",
+  accessory: "bell"
 };
 
 function decorateItems(items) {
@@ -121,12 +129,49 @@ function decorateItems(items) {
   }));
 }
 
+function cloneCatalogs(source) {
+  return Object.keys(source).reduce((next, key) => {
+    next[key] = source[key].map((item) => ({ ...item }));
+    return next;
+  }, {});
+}
+
+function findLookItem(catalogData, tab, id) {
+  if (!id || !catalogData[tab]) return null;
+  const item = catalogData[tab].find((entry) => entry.id === id);
+  return item ? decorateItems([item])[0] : null;
+}
+
+function buildLookSlots(catalogData, look) {
+  const slots = {
+    hat: findLookItem(catalogData, "hat", look.hat),
+    top: findLookItem(catalogData, "top", look.top),
+    bottom: findLookItem(catalogData, "bottom", look.bottom),
+    set: findLookItem(catalogData, "set", look.set),
+    accessory: findLookItem(catalogData, "accessory", look.accessory)
+  };
+  return slots;
+}
+
+function buildLookList(slots) {
+  return [
+    { key: "hat", label: "头饰", item: slots.hat },
+    { key: "top", label: "上衣", item: slots.top },
+    { key: "bottom", label: "下装", item: slots.bottom },
+    { key: "set", label: "套装", item: slots.set },
+    { key: "accessory", label: "饰品", item: slots.accessory }
+  ].filter((entry) => entry.item);
+}
+
+const initialCatalogData = cloneCatalogs(catalogs);
+const initialLookSlots = buildLookSlots(initialCatalogData, defaultLook);
+
 Page({
   data: {
     wallets: [
-      { id: "plant", value: 1280, icon: "植" },
-      { id: "clover", value: 36, icon: "草" },
-      { id: "fish", value: 5, icon: "鱼" }
+      { id: "plant", value: 1280, icon: "🌱" },
+      { id: "clover", value: 36, icon: "☘️" },
+      { id: "fish", value: 5, icon: "🐟" }
     ],
     tabs: [
       { id: "hat", name: "头饰", icon: "/assets/wardrobe/hat-straw.png" },
@@ -136,17 +181,45 @@ Page({
       { id: "accessory", name: "饰品", textIcon: "镜" }
     ],
     activeTab: "hat",
+    catalogData: initialCatalogData,
     items: decorateItems(catalogs.hat),
-    selectedItem: decorateItems(catalogs.hat)[1]
+    selectedItem: decorateItems(catalogs.hat)[0],
+    currentLook: { ...defaultLook },
+    savedLook: { ...defaultLook },
+    savedLooks: [],
+    lookSlots: initialLookSlots,
+    lookList: buildLookList(initialLookSlots)
+  },
+
+  refreshLook(extra = {}) {
+    const lookSlots = buildLookSlots(this.data.catalogData, this.data.currentLook);
+    this.setData({
+      lookSlots,
+      lookList: buildLookList(lookSlots),
+      ...extra
+    });
+  },
+
+  goBack() {
+    const pages = getCurrentPages();
+    if (pages.length > 1) {
+      wx.navigateBack();
+      return;
+    }
+    wx.switchTab({
+      url: "/pages/index/index",
+      fail: () => wx.navigateTo({ url: "/pages/index/index" })
+    });
   },
 
   switchTab(event) {
     const activeTab = event.currentTarget.dataset.id;
-    const items = decorateItems(catalogs[activeTab] || catalogs.hat);
+    const items = decorateItems(this.data.catalogData[activeTab] || this.data.catalogData.hat);
+    const previewId = this.data.currentLook[activeTab];
     this.setData({
       activeTab,
       items,
-      selectedItem: items.find((item) => !item.locked) || items[0]
+      selectedItem: items.find((item) => item.id === previewId) || items.find((item) => !item.locked) || items[0]
     });
   },
 
@@ -154,7 +227,12 @@ Page({
     const id = event.currentTarget.dataset.id;
     const selectedItem = this.data.items.find((item) => item.id === id);
     if (!selectedItem) return;
-    this.setData({ selectedItem });
+    const currentLook = selectedItem.locked
+      ? this.data.currentLook
+      : { ...this.data.currentLook, [this.data.activeTab]: selectedItem.id };
+    this.setData({ selectedItem, currentLook }, () => {
+      if (!selectedItem.locked) this.refreshLook();
+    });
     wx.showToast({
       title: selectedItem.locked ? "还未解锁" : "试穿中",
       icon: "none",
@@ -163,25 +241,84 @@ Page({
   },
 
   saveLook() {
+    const savedLook = { ...this.data.currentLook };
+    const savedLooks = [
+      {
+        id: `look-${Date.now()}`,
+        title: this.data.lookList.map((entry) => entry.item.name).join(" + "),
+        items: this.data.lookList.slice(0, 4)
+      },
+      ...this.data.savedLooks
+    ].slice(0, 2);
+    this.setData({
+      savedLook,
+      savedLooks
+    });
     wx.showToast({ title: "搭配已保存", icon: "success", duration: 900 });
   },
 
   resetLook() {
-    const items = decorateItems(catalogs.hat);
+    const catalogData = cloneCatalogs(catalogs);
+    const items = decorateItems(catalogData.hat);
+    const lookSlots = buildLookSlots(catalogData, defaultLook);
     this.setData({
+      catalogData,
       activeTab: "hat",
       items,
-      selectedItem: items[1]
+      selectedItem: items[0],
+      currentLook: { ...defaultLook },
+      savedLook: { ...defaultLook },
+      savedLooks: [],
+      lookSlots,
+      lookList: buildLookList(lookSlots)
     });
     wx.showToast({ title: "已重置", icon: "none", duration: 900 });
   },
 
   buySelected() {
     const item = this.data.selectedItem;
-    wx.showToast({
-      title: item.locked ? "需要先解锁" : "购买成功",
-      icon: item.locked ? "none" : "success",
-      duration: 1000
+    if (!item || item.locked) {
+      wx.showToast({ title: "需要先解锁", icon: "none", duration: 1000 });
+      return;
+    }
+    if (item.owned) {
+      this.saveLook();
+      return;
+    }
+
+    const wallet = this.data.wallets.find((entry) => entry.id === item.currency);
+    if (item.price > 0 && (!wallet || wallet.value < item.price)) {
+      wx.showToast({ title: "资源不足", icon: "none", duration: 1000 });
+      return;
+    }
+
+    const wallets = this.data.wallets.map((entry) => (
+      entry.id === item.currency ? { ...entry, value: entry.value - item.price } : entry
+    ));
+    const catalogData = {
+      ...this.data.catalogData,
+      [this.data.activeTab]: this.data.catalogData[this.data.activeTab].map((entry) => (
+        entry.id === item.id ? { ...entry, owned: true, unlock: "已拥有", price: 0 } : entry
+      ))
+    };
+    const items = decorateItems(catalogData[this.data.activeTab]);
+    const selectedItem = items.find((entry) => entry.id === item.id);
+    const currentLook = {
+      ...this.data.currentLook,
+      [this.data.activeTab]: item.id
+    };
+    const lookSlots = buildLookSlots(catalogData, currentLook);
+
+    this.setData({
+      wallets,
+      catalogData,
+      items,
+      selectedItem,
+      currentLook,
+      savedLook: { ...currentLook },
+      lookSlots,
+      lookList: buildLookList(lookSlots)
     });
+    wx.showToast({ title: "购买成功", icon: "success", duration: 1000 });
   }
 });

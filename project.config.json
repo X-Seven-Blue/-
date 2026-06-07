@@ -25,12 +25,13 @@
   },
   "compileType": "miniprogram",
   "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
   "simulatorPluginLibVersion": {},
   "packOptions": {
     "ignore": [],
     "include": []
   },
-  "appid": "wxb4917f1b19d85966",
+  "appid": "wx776872067a7aaa4d",
   "editorSetting": {},
   "libVersion": "3.16.1"
 }
